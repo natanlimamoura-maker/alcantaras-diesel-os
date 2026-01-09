@@ -7,7 +7,6 @@
     
     <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Oficina%20Diesel%22,%22short_name%22:%22DieselOS%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#d32f2f%22,%22icons%22:[{%22src%22:%22https://cdn-icons-png.flaticon.com/512/3059/3059251.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
     <meta name="theme-color" content="#d32f2f">
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
@@ -20,67 +19,85 @@
         .row div { flex: 1; }
         button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn-pdf { background: #2e7d32; color: white; }
-        .btn-clear { background: #757575; color: white; }
+        .btn-new { background: #1976d2; color: white; }
+        .btn-photo { background: #f0f0f0; color: #333; border: 1px solid #ccc; font-size: 14px; padding: 10px; }
         .btn-config { background: #546e7a; color: white; margin-top: 20px; font-size: 14px; padding: 10px; }
-        .btn-backup { background: #f57c00; color: white; margin-top: 10px; }
-        #preview-img { width: 100px; height: 100px; object-fit: cover; margin-top: 10px; display: none; border-radius: 8px; border: 2px solid #d32f2f; }
+        #preview-img { width: 100px; height: 100px; object-fit: cover; margin: 10px auto; display: none; border-radius: 8px; border: 2px solid #d32f2f; }
         .historico { margin-top: 30px; border-top: 2px solid #ccc; padding-top: 10px; }
-        .item-historico { background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #d32f2f; font-size: 13px; }
-        .btn-rebaixar { background: #1976d2; color: white; padding: 5px 10px; width: auto; font-size: 12px; margin: 0; }
+        .item-historico { background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #d32f2f; }
         #aba-config { display: none; padding: 15px; background: #f0f0f0; border-radius: 8px; margin-top: 15px; }
+        .hidden-input { display: none; }
+        
+        /* Estilo Bloqueio */
+        #bloqueio-licenca { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; color: white; text-align: center; padding-top: 50px; }
+        .lock-card { background: #fff; color: #333; margin: 20px; padding: 30px; border-radius: 15px; }
+        .licenca-info { background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; color: #d32f2f; text-align: center; border: 1px solid #d32f2f; }
     </style>
 </head>
 <body>
 
-<div class="card">
+<div id="bloqueio-licenca">
+    <div class="lock-card">
+        <h2 style="color:red">LICENÇA EXPIRADA</h2>
+        <p>Seus 30 dias de uso gratuito acabaram.</p>
+        <p>Insira a senha de renovação:</p>
+        <input type="password" id="senha-renova" style="text-align:center; font-size:24px" placeholder="****">
+        <button class="btn-pdf" onclick="verificarSenha()">RENOVAR ACESSO</button>
+    </div>
+</div>
+
+<div class="card" id="app-content">
     <h2 id="titulo-oficina">Alcantara's Diesel</h2>
     
-    <div id="form-principal">
-        <label>Cliente:</label>
-        <input type="text" id="cliente" placeholder="Nome do Cliente">
+    <label>Cliente:</label>
+    <input type="text" id="cliente" placeholder="Nome do Cliente">
 
-        <div class="row">
-            <div><label>Modelo:</label><input type="text" id="modelo" placeholder="Scania"></div>
-            <div><label>Placa:</label><input type="text" id="placa" placeholder="ABC-1234"></div>
-        </div>
+    <div class="row">
+        <div><label>Modelo:</label><input type="text" id="modelo" placeholder="Scania"></div>
+        <div><label>Placa:</label><input type="text" id="placa" placeholder="ABC-1234"></div>
+    </div>
 
-        <label>KM Atual:</label>
-        <input type="number" id="km" placeholder="500000">
+    <label>KM Atual:</label>
+    <input type="number" id="km" placeholder="500000">
 
-        <label>Serviço Executado:</label>
-        <textarea id="servico_exec" rows="3" placeholder="O que foi feito no veículo..."></textarea>
+    <label>Serviço Executado:</label>
+    <textarea id="servico_exec" rows="3" placeholder="O que foi feito..."></textarea>
 
-        <label>Orçamento (Serviço - Valor):</label>
-        <textarea id="servicos_lista" rows="4" placeholder="Ex: Filtro - 100&#10;Mão de obra - 200" oninput="calcularTotal()"></textarea>
-        
-        <label>Valor Total (R$):</label>
-        <input type="text" id="total" value="0.00" readonly style="background: #f9f9f9; font-weight: bold; color: #2e7d32;">
+    <label>Orçamento (Peça - Valor):</label>
+    <textarea id="servicos_lista" rows="4" placeholder="Filtro - 100" oninput="calcularTotal()"></textarea>
+    
+    <label>Total (R$):</label>
+    <input type="text" id="total" value="0.00" readonly style="background: #f9f9f9; font-weight: bold; color: #2e7d32;">
 
-        <label>Foto:</label>
-        <input type="file" id="foto" accept="image/*" onchange="processarFoto()">
-        <img id="preview-img">
+    <label>Fotos:</label>
+    <div class="row">
+        <button class="btn-photo" onclick="document.getElementById('input-camera').click()">📸 Tirar Foto</button>
+        <button class="btn-photo" onclick="document.getElementById('input-galeria').click()">🖼️ Galeria</button>
+    </div>
+    
+    <input type="file" id="input-camera" accept="image/*" capture="camera" class="hidden-input" onchange="processarFoto(this)">
+    <input type="file" id="input-galeria" accept="image/*" class="hidden-input" onchange="processarFoto(this)">
+    
+    <img id="preview-img">
 
-        <button class="btn-pdf" onclick="gerarPDF(true)">SALVAR E GERAR PDF</button>
-        <button class="btn-clear" onclick="limparTudo()">LIMPAR TELA</button>
-        
-        <button class="btn-config" onclick="toggleConfig()">⚙️ CONFIGURAÇÕES E BACKUP</button>
+    <button class="btn-pdf" onclick="gerarPDF(true)">SALVAR E GERAR PDF</button>
+    <button class="btn-new" onclick="abrirNovaOS()">ABRIR NOVA ORDEM DE SERVIÇO</button>
+    
+    <button class="btn-config" onclick="toggleConfig()">⚙️ CONFIGURAÇÕES / BACKUP</button>
 
-        <div id="aba-config">
-            <h3>Configurações</h3>
-            <label>Nome da Oficina:</label>
-            <input type="text" id="nome-oficina-input" placeholder="Ex: Alcantara's Diesel">
-            <button class="btn-pdf" onclick="salvarConfig()">SALVAR NOME</button>
-            <hr>
-            <h3>Dados</h3>
-            <button class="btn-backup" onclick="exportarBackup()">EXPORTAR BACKUP (.JSON)</button>
-            <label>Importar Backup:</label>
-            <input type="file" id="import-file" accept=".json" onchange="importarBackup()">
-        </div>
+    <div id="aba-config">
+        <div id="info-dias-licenca" class="licenca-info">Calculando licença...</div>
+        <label>Nome da Oficina:</label>
+        <input type="text" id="nome-oficina-input">
+        <button class="btn-pdf" onclick="salvarConfig()">SALVAR NOME</button>
+        <hr>
+        <button style="background:#f57c00; color:white" onclick="exportarBackup()">EXPORTAR BACKUP</button>
+        <input type="file" id="import-file" accept=".json" onchange="importarBackup()" style="font-size:12px; margin-top:10px">
+    </div>
 
-        <div class="historico">
-            <h3>Últimos Orçamentos</h3>
-            <div id="lista-historico"></div>
-        </div>
+    <div class="historico">
+        <h3>Histórico</h3>
+        <div id="lista-historico"></div>
     </div>
 </div>
 
@@ -89,6 +106,7 @@
     let nomeOficina = "Alcantara's Diesel";
 
     window.onload = () => {
+        verificarLicenca();
         const configSalva = localStorage.getItem('config_oficina');
         if(configSalva) {
             nomeOficina = configSalva;
@@ -98,35 +116,71 @@
         carregarHistorico();
     };
 
+    function verificarLicenca() {
+        const dataInicio = localStorage.getItem('app_install_date');
+        const hoje = new Date().getTime();
+
+        if (!dataInicio) {
+            localStorage.setItem('app_install_date', hoje);
+            atualizarExibicaoDias(30);
+        } else {
+            const diasPassados = Math.floor((hoje - dataInicio) / (1000 * 60 * 60 * 24));
+            const diasRestantes = 30 - diasPassados;
+            
+            atualizarExibicaoDias(diasRestantes);
+
+            if (diasRestantes <= 0) {
+                document.getElementById('bloqueio-licenca').style.display = 'block';
+            }
+        }
+    }
+
+    function atualizarExibicaoDias(dias) {
+        const display = document.getElementById('info-dias-licenca');
+        if (dias > 0) {
+            display.innerText = `Licença: ${dias} dias restantes`;
+        } else {
+            display.innerText = `Licença: EXPIRADA`;
+        }
+    }
+
+    function verificarSenha() {
+        const senha = document.getElementById('senha-renova').value;
+        if (senha === "0907") {
+            localStorage.setItem('app_install_date', new Date().getTime());
+            alert("Licença renovada com sucesso!");
+            location.reload();
+        } else {
+            alert("Senha incorreta!");
+        }
+    }
+
     function toggleConfig() {
         const aba = document.getElementById('aba-config');
         aba.style.display = aba.style.display === 'none' ? 'block' : 'none';
     }
 
     function salvarConfig() {
-        const novoNome = document.getElementById('nome-oficina-input').value;
-        if(novoNome) {
-            localStorage.setItem('config_oficina', novoNome);
-            location.reload();
-        }
+        localStorage.setItem('config_oficina', document.getElementById('nome-oficina-input').value);
+        location.reload();
     }
 
     function calcularTotal() {
         const texto = document.getElementById('servicos_lista').value;
         const linhas = texto.split('\n');
         let soma = 0;
-        linhas.forEach(linha => {
-            const partes = linha.split('-');
-            if(partes.length > 1) {
-                const valor = parseFloat(partes[partes.length - 1].trim().replace(',', '.'));
-                if(!isNaN(valor)) soma += valor;
+        linhas.forEach(l => {
+            const p = l.split('-');
+            if(p.length > 1) {
+                const v = parseFloat(p[p.length-1].trim().replace(',', '.'));
+                if(!isNaN(v)) soma += v;
             }
         });
         document.getElementById('total').value = soma.toFixed(2);
     }
 
-    function processarFoto() {
-        const file = document.getElementById('foto').files[0];
+    function processarFoto(input) {
+        const file = input.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -146,12 +200,22 @@
         reader.readAsDataURL(file);
     }
 
+    function abrirNovaOS() {
+        if(confirm("Deseja SALVAR esta Ordem de Serviço antes de abrir uma nova?")) {
+            gerarPDF(true);
+        } else {
+            if(confirm("Tem certeza que deseja apagar tudo e começar uma nova?")) {
+                location.reload();
+            }
+        }
+    }
+
     function gerarPDF(salvar = false) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const data = new Date().toLocaleDateString('pt-BR');
         
-        const dados = {
+        const d = {
             cliente: document.getElementById('cliente').value,
             placa: document.getElementById('placa').value,
             modelo: document.getElementById('modelo').value,
@@ -164,10 +228,11 @@
         };
 
         if(salvar) {
-            let historico = JSON.parse(localStorage.getItem('alcantara_history') || "[]");
-            historico.unshift(dados);
-            localStorage.setItem('alcantara_history', JSON.stringify(historico));
+            let h = JSON.parse(localStorage.getItem('alcantara_history') || "[]");
+            h.unshift(d);
+            localStorage.setItem('alcantara_history', JSON.stringify(h));
             carregarHistorico();
+            alert("O.S. Salva no histórico!");
         }
 
         doc.setFillColor(211, 47, 47);
@@ -175,50 +240,42 @@
         doc.setTextColor(255);
         doc.setFontSize(22);
         doc.text(nomeOficina.toUpperCase(), 15, 25);
-        doc.setFontSize(10);
-        doc.text(`O.S. VEICULAR | Data: ${data}`, 15, 33);
-
-        if (dados.foto) doc.addImage(dados.foto, 'JPEG', 150, 5, 45, 30);
+        if (d.foto) doc.addImage(d.foto, 'JPEG', 155, 5, 40, 30);
 
         doc.setTextColor(0);
         doc.setFontSize(12);
-        doc.text(`CLIENTE: ${dados.cliente}`, 15, 50);
-        doc.text(`VEÍCULO: ${dados.modelo} | PLACA: ${dados.placa} | KM: ${dados.km}`, 15, 58);
+        doc.text(`CLIENTE: ${d.cliente}`, 15, 50);
+        doc.text(`VEÍCULO: ${d.modelo} | PLACA: ${d.placa} | KM: ${d.km}`, 15, 58);
         doc.line(15, 62, 195, 62);
-
-        doc.setFont("helvetica", "bold");
         doc.text("SERVIÇO EXECUTADO:", 15, 72);
-        doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
-        doc.text(doc.splitTextToSize(dados.servico_exec, 180), 15, 78);
-
-        doc.setFont("helvetica", "bold");
-        doc.text("ORÇAMENTO DETALHADO:", 15, 110);
-        doc.setFont("helvetica", "normal");
-        doc.text(doc.splitTextToSize(dados.servicos_lista, 180), 15, 116);
-
+        doc.text(doc.splitTextToSize(d.servico_exec, 180), 15, 78);
+        doc.setFontSize(12);
+        doc.text("ORÇAMENTO:", 15, 110);
+        doc.setFontSize(10);
+        doc.text(doc.splitTextToSize(d.servicos_lista, 180), 15, 116);
         doc.setFontSize(16);
         doc.setTextColor(46, 125, 50);
-        doc.text(`TOTAL GERAL: R$ ${dados.total}`, 15, 160);
+        doc.text(`TOTAL: R$ ${d.total}`, 15, 160);
 
-        doc.save(`OS_${dados.placa}.pdf`);
+        doc.save(`OS_${d.placa}.pdf`);
     }
 
     function carregarHistorico() {
-        const historico = JSON.parse(localStorage.getItem('alcantara_history') || "[]");
+        const h = JSON.parse(localStorage.getItem('alcantara_history') || "[]");
         const lista = document.getElementById('lista-historico');
         lista.innerHTML = "";
-        historico.slice(0, 15).forEach((item, index) => {
+        h.slice(0, 10).forEach((item, i) => {
             const div = document.createElement('div');
             div.className = "item-historico";
-            div.innerHTML = `<span><b>${item.placa}</b> (${item.data})</span><button class="btn-rebaixar" onclick="baixarDeNovo(${index})">PDF</button>`;
+            div.innerHTML = `<span><b>${item.placa}</b> - ${item.data}</span><button onclick="baixarNovamente(${i})" style="width:auto; padding:5px 10px; font-size:12px; background:#1976d2; color:white">PDF</button>`;
             lista.appendChild(div);
         });
     }
 
-    function baixarDeNovo(index) {
-        const historico = JSON.parse(localStorage.getItem('alcantara_history'));
-        const d = historico[index];
+    function baixarNovamente(i) {
+        const h = JSON.parse(localStorage.getItem('alcantara_history'));
+        const d = h[i];
         document.getElementById('cliente').value = d.cliente;
         document.getElementById('placa').value = d.placa;
         document.getElementById('modelo').value = d.modelo;
@@ -231,27 +288,18 @@
     }
 
     function exportarBackup() {
-        const data = localStorage.getItem('alcantara_history');
-        const blob = new Blob([data], {type: "application/json"});
-        const url = URL.createObjectURL(blob);
+        const b = new Blob([localStorage.getItem('alcantara_history')], {type: "application/json"});
+        const u = URL.createObjectURL(b);
         const a = document.createElement('a');
-        a.href = url;
-        a.download = `backup_oficina_${new Date().toLocaleDateString()}.json`;
-        a.click();
+        a.href = u; a.download = `backup_diesel.json`; a.click();
     }
 
     function importarBackup() {
-        const file = document.getElementById('import-file').files[0];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            localStorage.setItem('alcantara_history', e.target.result);
-            alert("Backup Restaurado!");
-            location.reload();
-        };
-        reader.readAsText(file);
+        const f = document.getElementById('import-file').files[0];
+        const r = new FileReader();
+        r.onload = (e) => { localStorage.setItem('alcantara_history', e.target.result); location.reload(); };
+        r.readAsText(f);
     }
-
-    function limparTudo() { if(confirm("Limpar tela?")) location.reload(); }
 </script>
 </body>
 </html>
