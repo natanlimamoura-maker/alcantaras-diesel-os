@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de O.S. Diesel</title>
+    <title>Alcantara's Diesel O.S.</title>
     
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Oficina%20Diesel%22,%22short_name%22:%22DieselOS%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#d32f2f%22,%22icons%22:[{%22src%22:%22https://cdn-icons-png.flaticon.com/512/3059/3059251.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Alcantaras%20Diesel%22%2C%22short_name%22%3A%22DieselOS%22%2C%22start_url%22%3A%22%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%23d32f2f%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F3059%2F3059251.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%22%7D%5D%7D">
     <meta name="theme-color" content="#d32f2f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3059/3059251.png">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
@@ -27,8 +31,6 @@
         .item-historico { background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #d32f2f; }
         #aba-config { display: none; padding: 15px; background: #f0f0f0; border-radius: 8px; margin-top: 15px; }
         .hidden-input { display: none; }
-        
-        /* Estilo Bloqueio */
         #bloqueio-licenca { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; color: white; text-align: center; padding-top: 50px; }
         .lock-card { background: #fff; color: #333; margin: 20px; padding: 30px; border-radius: 15px; }
         .licenca-info { background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; color: #d32f2f; text-align: center; border: 1px solid #d32f2f; }
@@ -114,45 +116,37 @@
             document.getElementById('nome-oficina-input').value = nomeOficina;
         }
         carregarHistorico();
+
+        // Registro de Service Worker para Vercel reconhecer PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:text/javascript;base64,' + btoa('self.addEventListener("fetch", (e) => {});'))
+            .catch(err => console.log("SW error", err));
+        }
     };
 
     function verificarLicenca() {
         const dataInicio = localStorage.getItem('app_install_date');
         const hoje = new Date().getTime();
-
         if (!dataInicio) {
             localStorage.setItem('app_install_date', hoje);
             atualizarExibicaoDias(30);
         } else {
             const diasPassados = Math.floor((hoje - dataInicio) / (1000 * 60 * 60 * 24));
             const diasRestantes = 30 - diasPassados;
-            
             atualizarExibicaoDias(diasRestantes);
-
-            if (diasRestantes <= 0) {
-                document.getElementById('bloqueio-licenca').style.display = 'block';
-            }
+            if (diasRestantes <= 0) document.getElementById('bloqueio-licenca').style.display = 'block';
         }
     }
 
     function atualizarExibicaoDias(dias) {
-        const display = document.getElementById('info-dias-licenca');
-        if (dias > 0) {
-            display.innerText = `Licença: ${dias} dias restantes`;
-        } else {
-            display.innerText = `Licença: EXPIRADA`;
-        }
+        document.getElementById('info-dias-licenca').innerText = dias > 0 ? `Licença: ${dias} dias restantes` : `Licença: EXPIRADA`;
     }
 
     function verificarSenha() {
-        const senha = document.getElementById('senha-renova').value;
-        if (senha === "0907") {
+        if (document.getElementById('senha-renova').value === "0907") {
             localStorage.setItem('app_install_date', new Date().getTime());
-            alert("Licença renovada com sucesso!");
-            location.reload();
-        } else {
-            alert("Senha incorreta!");
-        }
+            alert("Renovado!"); location.reload();
+        } else alert("Incorreta!");
     }
 
     function toggleConfig() {
@@ -201,20 +195,14 @@
     }
 
     function abrirNovaOS() {
-        if(confirm("Deseja SALVAR esta Ordem de Serviço antes de abrir uma nova?")) {
-            gerarPDF(true);
-        } else {
-            if(confirm("Tem certeza que deseja apagar tudo e começar uma nova?")) {
-                location.reload();
-            }
-        }
+        if(confirm("Deseja SALVAR esta O.S. antes de abrir uma nova?")) gerarPDF(true);
+        else if(confirm("Apagar tudo e começar nova?")) location.reload();
     }
 
     function gerarPDF(salvar = false) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const data = new Date().toLocaleDateString('pt-BR');
-        
         const d = {
             cliente: document.getElementById('cliente').value,
             placa: document.getElementById('placa').value,
@@ -226,38 +214,24 @@
             foto: fotoBase64,
             data: data
         };
-
         if(salvar) {
             let h = JSON.parse(localStorage.getItem('alcantara_history') || "[]");
             h.unshift(d);
             localStorage.setItem('alcantara_history', JSON.stringify(h));
             carregarHistorico();
-            alert("O.S. Salva no histórico!");
+            alert("Salvo!");
         }
-
-        doc.setFillColor(211, 47, 47);
-        doc.rect(0, 0, 210, 40, 'F');
-        doc.setTextColor(255);
-        doc.setFontSize(22);
-        doc.text(nomeOficina.toUpperCase(), 15, 25);
+        doc.setFillColor(211, 47, 47); doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255); doc.setFontSize(22); doc.text(nomeOficina.toUpperCase(), 15, 25);
         if (d.foto) doc.addImage(d.foto, 'JPEG', 155, 5, 40, 30);
-
-        doc.setTextColor(0);
-        doc.setFontSize(12);
-        doc.text(`CLIENTE: ${d.cliente}`, 15, 50);
+        doc.setTextColor(0); doc.setFontSize(12); doc.text(`CLIENTE: ${d.cliente}`, 15, 50);
         doc.text(`VEÍCULO: ${d.modelo} | PLACA: ${d.placa} | KM: ${d.km}`, 15, 58);
         doc.line(15, 62, 195, 62);
-        doc.text("SERVIÇO EXECUTADO:", 15, 72);
-        doc.setFontSize(10);
+        doc.text("SERVIÇO EXECUTADO:", 15, 72); doc.setFontSize(10);
         doc.text(doc.splitTextToSize(d.servico_exec, 180), 15, 78);
-        doc.setFontSize(12);
-        doc.text("ORÇAMENTO:", 15, 110);
-        doc.setFontSize(10);
-        doc.text(doc.splitTextToSize(d.servicos_lista, 180), 15, 116);
-        doc.setFontSize(16);
-        doc.setTextColor(46, 125, 50);
-        doc.text(`TOTAL: R$ ${d.total}`, 15, 160);
-
+        doc.setFontSize(12); doc.text("ORÇAMENTO:", 15, 110);
+        doc.setFontSize(10); doc.text(doc.splitTextToSize(d.servicos_lista, 180), 15, 116);
+        doc.setFontSize(16); doc.setTextColor(46, 125, 50); doc.text(`TOTAL: R$ ${d.total}`, 15, 160);
         doc.save(`OS_${d.placa}.pdf`);
     }
 
@@ -274,8 +248,7 @@
     }
 
     function baixarNovamente(i) {
-        const h = JSON.parse(localStorage.getItem('alcantara_history'));
-        const d = h[i];
+        const d = JSON.parse(localStorage.getItem('alcantara_history'))[i];
         document.getElementById('cliente').value = d.cliente;
         document.getElementById('placa').value = d.placa;
         document.getElementById('modelo').value = d.modelo;
@@ -283,14 +256,12 @@
         document.getElementById('servico_exec').value = d.servico_exec;
         document.getElementById('servicos_lista').value = d.servicos_lista;
         document.getElementById('total').value = d.total;
-        fotoBase64 = d.foto;
-        gerarPDF(false);
+        fotoBase64 = d.foto; gerarPDF(false);
     }
 
     function exportarBackup() {
         const b = new Blob([localStorage.getItem('alcantara_history')], {type: "application/json"});
-        const u = URL.createObjectURL(b);
-        const a = document.createElement('a');
+        const u = URL.createObjectURL(b); const a = document.createElement('a');
         a.href = u; a.download = `backup_diesel.json`; a.click();
     }
 
