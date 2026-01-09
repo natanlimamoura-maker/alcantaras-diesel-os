@@ -29,13 +29,18 @@
         .btn-pdf { background: #2e7d32; color: white; }
         .btn-new { background: #1976d2; color: white; }
         .btn-photo { background: #f0f0f0; color: #333; border: 1px solid #ccc; font-size: 14px; padding: 10px; flex: 1; }
+        .btn-remove-photo { background: #ffcdd2; color: #c62828; font-size: 12px; padding: 5px; border: 1px solid #ef9a9a; margin-bottom: 10px; display: none; }
         .btn-config { background: #546e7a; color: white; margin-top: 20px; font-size: 14px; padding: 10px; }
-        #preview-img { width: 100px; height: 100px; object-fit: cover; margin: 10px auto; display: none; border-radius: 8px; border: 2px solid #d32f2f; }
+        #preview-container { text-align: center; position: relative; }
+        #preview-img { width: 120px; height: 120px; object-fit: cover; margin: 10px auto; display: none; border-radius: 8px; border: 2px solid #d32f2f; }
+        
         .historico { margin-top: 30px; border-top: 2px solid #ccc; padding-top: 10px; }
-        .item-historico { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; flex-direction: column; border-left: 5px solid #d32f2f; }
-        .item-info { display: flex; justify-content: space-between; padding: 10px; align-items: center; }
-        .item-actions { display: flex; gap: 5px; padding: 5px 10px 10px 10px; }
+        .item-historico { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 5px solid #d32f2f; }
+        .item-info { display: flex; justify-content: space-between; padding: 5px; align-items: center; }
+        .item-actions { display: flex; gap: 5px; padding: 5px; }
         .btn-mini { padding: 8px; font-size: 12px; flex: 1; border-radius: 5px; color: white; border: none; cursor: pointer; }
+        
+        #status-edit { background: #fff3e0; color: #e65100; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 10px; display: none; border: 1px solid #ffb74d; }
         #aba-config { display: none; padding: 15px; background: #f0f0f0; border-radius: 8px; margin-top: 15px; }
         #bloqueio-licenca { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; color: white; text-align: center; padding-top: 50px; }
         .lock-card { background: #fff; color: #333; margin: 20px; padding: 30px; border-radius: 15px; }
@@ -46,15 +51,16 @@
 <div id="bloqueio-licenca">
     <div class="lock-card">
         <h2 style="color:red">LICENÇA EXPIRADA</h2>
-        <p>Seus 30 dias acabaram. Insira a senha:</p>
+        <p>Senha 0907 para renovar:</p>
         <input type="password" id="senha-renova" style="text-align:center; font-size:24px">
-        <button class="btn-pdf" onclick="verificarSenha()">RENOVAR ACESSO</button>
+        <button class="btn-pdf" onclick="verificarSenha()">RENOVAR</button>
     </div>
 </div>
 
 <div class="card">
     <h2 id="titulo-oficina">Alcantara's Diesel</h2>
-    
+    <div id="status-edit">⚠️ MODO EDIÇÃO ATIVADO</div>
+
     <label>Cliente:</label>
     <input type="text" id="cliente" placeholder="Nome do Cliente">
 
@@ -71,7 +77,7 @@
 
     <label>Orçamento Detalhado:</label>
     <div id="lista-itens-orcamento"></div>
-    <button type="button" class="btn-add-item" onclick="adicionarNovaLinhaItem()">+ ADICIONAR ITEM / PEÇA</button>
+    <button type="button" class="btn-add-item" id="btn-add">+ ADICIONAR ITEM / VALOR</button>
     
     <label>Valor Total (R$):</label>
     <input type="text" id="total" value="0.00" readonly style="background: #f1f8e9; font-weight: bold; color: #2e7d32; border: 1px solid #2e7d32; text-align: center;">
@@ -83,20 +89,23 @@
     </div>
     <input type="file" id="input-camera" accept="image/*" capture="camera" style="display:none" onchange="processarFoto(this)">
     <input type="file" id="input-galeria" accept="image/*" style="display:none" onchange="processarFoto(this)">
-    <img id="preview-img">
+    
+    <div id="preview-container">
+        <img id="preview-img">
+        <button type="button" id="btn-del-photo" class="btn-remove-photo" onclick="removerFoto()">❌ REMOVER FOTO</button>
+    </div>
 
     <button class="btn-pdf" onclick="gerarPDF(true)">SALVAR E GERAR PDF</button>
     <button class="btn-new" onclick="novaOS()">LIMPAR / NOVA O.S.</button>
     
-    <button class="btn-config" onclick="toggleConfig()">⚙️ CONFIGURAÇÕES / BACKUP</button>
+    <button class="btn-config" onclick="toggleConfig()">⚙️ CONFIGURAÇÕES</button>
 
     <div id="aba-config">
         <div id="info-dias-licenca" style="text-align:center; font-weight:bold; color:#d32f2f; margin-bottom:10px"></div>
         <label>Nome da Oficina:</label>
         <input type="text" id="nome-oficina-input">
         <button class="btn-pdf" onclick="salvarConfig()">SALVAR NOME</button>
-        <hr>
-        <button style="background:#f57c00; color:white" onclick="exportarBackup()">EXPORTAR BACKUP</button>
+        <button style="background:#f57c00; color:white" onclick="exportarBackup()">BACKUP</button>
     </div>
 
     <div class="historico">
@@ -116,61 +125,63 @@
             document.getElementById('titulo-oficina').innerText = configSalva;
             document.getElementById('nome-oficina-input').value = configSalva;
         }
-        adicionarNovaLinhaItem();
+        document.getElementById('btn-add').addEventListener('click', () => adicionarLinhaItem());
+        adicionarLinhaItem();
         carregarHistorico();
     };
 
-    function adicionarNovaLinhaItem(desc = "", val = "") {
+    function adicionarLinhaItem(desc = "", val = "") {
         const container = document.getElementById('lista-itens-orcamento');
         const div = document.createElement('div');
         div.className = 'item-linha';
         div.innerHTML = `
-            <input type="text" class="item-desc" placeholder="Peça/Serviço" value="${desc}">
-            <input type="number" class="item-val" placeholder="0.00" value="${val}" oninput="calcularTotalOS()">
-            <button class="btn-del-item" onclick="removerLinha(this)">X</button>
+            <input type="text" class="item-desc" placeholder="Peça" value="${desc}">
+            <input type="number" class="item-val" placeholder="0.00" value="${val}" oninput="calcularTotal()">
+            <button class="btn-del-item" onclick="this.parentElement.remove(); calcularTotal();">X</button>
         `;
         container.appendChild(div);
     }
 
-    function removerLinha(botao) {
-        botao.parentElement.remove();
-        calcularTotalOS();
-    }
-
-    function calcularTotalOS() {
-        const valores = document.querySelectorAll('.item-val');
+    function calcularTotal() {
         let soma = 0;
-        valores.forEach(v => { if(v.value) soma += parseFloat(v.value); });
+        document.querySelectorAll('.item-val').forEach(v => {
+            if(v.value) soma += parseFloat(v.value);
+        });
         document.getElementById('total').value = soma.toFixed(2);
     }
 
-    function coletarDadosItens() {
-        const linhas = document.querySelectorAll('.item-linha');
+    function coletarItens() {
         let itens = [];
-        linhas.forEach(l => {
+        document.querySelectorAll('.item-linha').forEach(l => {
             const d = l.querySelector('.item-desc').value;
             const v = l.querySelector('.item-val').value;
-            if(d.trim() !== "") { itens.push({ desc: d, val: v || "0.00" }); }
+            if(d.trim() !== "") itens.push({ desc: d, val: v || "0.00" });
         });
         return itens;
     }
 
+    function removerFoto() {
+        fotoBase64 = "";
+        document.getElementById('preview-img').src = "";
+        document.getElementById('preview-img').style.display = "none";
+        document.getElementById('btn-del-photo').style.display = "none";
+        document.getElementById('input-camera').value = "";
+        document.getElementById('input-galeria').value = "";
+    }
+
     function verificarLicenca() {
-        const dataInicio = localStorage.getItem('app_install_date');
-        const hoje = new Date().getTime();
-        if (!dataInicio) { localStorage.setItem('app_install_date', hoje); } 
-        else {
-            const diasRestantes = 30 - Math.floor((hoje - dataInicio) / (1000 * 60 * 60 * 24));
-            document.getElementById('info-dias-licenca').innerText = `Licença: ${diasRestantes} dias restantes`;
-            if (diasRestantes <= 0) document.getElementById('bloqueio-licenca').style.display = 'block';
-        }
+        const dataInicio = localStorage.getItem('app_install_date') || new Date().getTime();
+        localStorage.setItem('app_install_date', dataInicio);
+        const diasRestantes = 30 - Math.floor((new Date().getTime() - dataInicio) / (1000 * 60 * 60 * 24));
+        document.getElementById('info-dias-licenca').innerText = `Licença: ${diasRestantes} dias`;
+        if (diasRestantes <= 0) document.getElementById('bloqueio-licenca').style.display = 'block';
     }
 
     function verificarSenha() {
         if (document.getElementById('senha-renova').value === "0907") {
             localStorage.setItem('app_install_date', new Date().getTime());
             location.reload();
-        } else alert("Incorreta!");
+        }
     }
 
     function toggleConfig() {
@@ -184,23 +195,22 @@
     }
 
     function processarFoto(input) {
-        const file = input.files[0];
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = (e) => {
             const img = new Image();
             img.src = e.target.result;
-            img.onload = function() {
+            img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = 400;
-                canvas.height = img.height * (400 / img.width);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.width = 400; canvas.height = img.height * (400 / img.width);
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
                 fotoBase64 = canvas.toDataURL('image/jpeg', 0.6);
-                document.getElementById('preview-img').src = fotoBase64;
-                document.getElementById('preview-img').style.display = "block";
+                const pImg = document.getElementById('preview-img');
+                pImg.src = fotoBase64;
+                pImg.style.display = "block";
+                document.getElementById('btn-del-photo').style.display = "inline-block";
             }
         };
-        reader.readAsDataURL(file);
+        if(input.files[0]) reader.readAsDataURL(input.files[0]);
     }
 
     function carregarHistorico() {
@@ -208,16 +218,15 @@
         const lista = document.getElementById('lista-historico');
         lista.innerHTML = "";
         h.forEach((item, i) => {
-            const div = document.createElement('div');
-            div.className = "item-historico";
-            div.innerHTML = `
-                <div class="item-info"><span><b>${item.placa}</b> - ${item.cliente}</span><small>${item.data}</small></div>
-                <div class="item-actions">
-                    <button class="btn-mini" style="background:#1976d2" onclick="regerarPDF(${i})">PDF</button>
-                    <button class="btn-mini" style="background:#f57c00" onclick="editarOS(${i})">EDITAR</button>
-                    <button class="btn-mini" style="background:#d32f2f" onclick="excluirOS(${i})">EXCLUIR</button>
+            lista.innerHTML += `
+                <div class="item-historico">
+                    <div class="item-info"><span><b>${item.placa}</b> - ${item.cliente}</span><small>${item.data}</small></div>
+                    <div class="item-actions">
+                        <button class="btn-mini" style="background:#1976d2" onclick="rebaixarPDF(${i})">PDF</button>
+                        <button class="btn-mini" style="background:#f57c00" onclick="editarOS(${i})">EDITAR</button>
+                        <button class="btn-mini" style="background:#d32f2f" onclick="excluirOS(${i})">X</button>
+                    </div>
                 </div>`;
-            lista.appendChild(div);
         });
     }
 
@@ -229,16 +238,20 @@
         document.getElementById('km').value = d.km;
         document.getElementById('servico_exec').value = d.servico_exec;
         document.getElementById('lista-itens-orcamento').innerHTML = "";
-        if(d.itens && d.itens.length > 0) { d.itens.forEach(it => adicionarNovaLinhaItem(it.desc, it.val)); }
-        else { adicionarNovaLinhaItem(); }
-        calcularTotalOS();
+        d.itens.forEach(it => adicionarLinhaItem(it.desc, it.val));
+        calcularTotal();
         fotoBase64 = d.foto;
-        if(fotoBase64) { document.getElementById('preview-img').src = fotoBase64; document.getElementById('preview-img').style.display = "block"; }
-        editandoIndex = i; window.scrollTo(0,0);
+        const pImg = document.getElementById('preview-img');
+        pImg.src = fotoBase64 || "";
+        pImg.style.display = fotoBase64 ? "block" : "none";
+        document.getElementById('btn-del-photo').style.display = fotoBase64 ? "inline-block" : "none";
+        editandoIndex = i;
+        document.getElementById('status-edit').style.display = 'block';
+        window.scrollTo(0,0);
     }
 
     function excluirOS(i) {
-        if(confirm("Excluir?")) {
+        if(confirm("Excluir registro permanentemente?")) {
             let h = JSON.parse(localStorage.getItem('alcantara_history'));
             h.splice(i, 1);
             localStorage.setItem('alcantara_history', JSON.stringify(h));
@@ -246,19 +259,18 @@
         }
     }
 
-    function novaOS() { if(confirm("Limpar tela?")) location.reload(); }
+    function novaOS() { if(confirm("Limpar tudo para nova O.S?")) location.reload(); }
 
     function gerarPDF(salvar = false) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        const itensCapturados = coletarDadosItens();
         const d = {
             cliente: document.getElementById('cliente').value,
             placa: document.getElementById('placa').value,
             modelo: document.getElementById('modelo').value,
             km: document.getElementById('km').value,
             servico_exec: document.getElementById('servico_exec').value,
-            itens: itensCapturados,
+            itens: coletarItens(),
             total: document.getElementById('total').value,
             foto: fotoBase64,
             data: new Date().toLocaleDateString('pt-BR')
@@ -266,10 +278,11 @@
 
         if(salvar) {
             let h = JSON.parse(localStorage.getItem('alcantara_history') || "[]");
-            if(editandoIndex > -1) { h[editandoIndex] = d; editandoIndex = -1; }
-            else h.unshift(d);
+            if(editandoIndex > -1) h[editandoIndex] = d; else h.unshift(d);
             localStorage.setItem('alcantara_history', JSON.stringify(h));
+            editandoIndex = -1;
             carregarHistorico();
+            document.getElementById('status-edit').style.display = 'none';
         }
 
         const oficina = localStorage.getItem('config_oficina') || "Alcantara's Diesel";
@@ -286,8 +299,8 @@
         doc.setFont("helvetica", "normal"); doc.setFontSize(10);
         doc.text(doc.splitTextToSize(d.servico_exec, 180), 15, 78);
 
-        doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("ORÇAMENTO:", 15, 100);
-        let y = 108;
+        doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("ORÇAMENTO:", 15, 105);
+        let y = 112;
         doc.setFontSize(10); doc.setFont("helvetica", "normal");
         d.itens.forEach(it => {
             doc.text(`${it.desc}`, 15, y);
@@ -301,24 +314,39 @@
         doc.save(`OS_${d.placa}.pdf`);
     }
 
-    function regerarPDF(i) {
-        const h = JSON.parse(localStorage.getItem('alcantara_history'));
-        const d = h[i];
-        document.getElementById('cliente').value = d.cliente;
-        document.getElementById('placa').value = d.placa;
-        document.getElementById('modelo').value = d.modelo;
-        document.getElementById('km').value = d.km;
-        document.getElementById('servico_exec').value = d.servico_exec;
-        document.getElementById('lista-itens-orcamento').innerHTML = "";
-        d.itens.forEach(it => adicionarNovaLinhaItem(it.desc, it.val));
-        document.getElementById('total').value = d.total;
-        fotoBase64 = d.foto;
-        gerarPDF(false);
+    function rebaixarPDF(i) {
+        const d = JSON.parse(localStorage.getItem('alcantara_history'))[i];
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const oficina = localStorage.getItem('config_oficina') || "Alcantara's Diesel";
+        doc.setFillColor(211, 47, 47); doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255); doc.setFontSize(20); doc.text(oficina.toUpperCase(), 15, 25);
+        if (d.foto) doc.addImage(d.foto, 'JPEG', 155, 5, 40, 30);
+        doc.setTextColor(0); doc.setFontSize(12);
+        doc.text(`CLIENTE: ${d.cliente}`, 15, 50);
+        doc.text(`VEÍCULO: ${d.modelo} | PLACA: ${d.placa} | KM: ${d.km}`, 15, 58);
+        doc.line(15, 62, 195, 62);
+        doc.setFontSize(12); doc.text("SERVIÇO EXECUTADO:", 15, 72);
+        doc.setFontSize(10); doc.text(doc.splitTextToSize(d.servico_exec, 180), 15, 78);
+        let y = 112;
+        d.itens.forEach(it => {
+            doc.text(`${it.desc}`, 15, y);
+            doc.text(`R$ ${it.val}`, 170, y);
+            y += 7;
+        });
+        doc.line(15, y, 195, y);
+        doc.setFontSize(14); doc.setTextColor(46, 125, 50);
+        doc.text(`TOTAL GERAL: R$ ${d.total}`, 15, y + 10);
+        doc.save(`OS_${d.placa}.pdf`);
     }
 
     function exportarBackup() {
         const b = new Blob([localStorage.getItem('alcantara_history')], {type: "application/json"});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `backup_os.json`; a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `backup.json`; a.click();
+    }
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('data:text/javascript;base64,' + btoa('self.addEventListener("fetch", (e) => {});'));
     }
 </script>
 </body>
