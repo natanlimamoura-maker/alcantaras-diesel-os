@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alcantara's Diesel</title>
+    <title>Sistema de O.S. Diesel</title>
     
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Alcantaras%20Diesel%22,%22short_name%22:%22Alcantaras%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#d32f2f%22,%22icons%22:[{%22src%22:%22https://cdn-icons-png.flaticon.com/512/3059/3059251.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Oficina%20Diesel%22,%22short_name%22:%22DieselOS%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#d32f2f%22,%22icons%22:[{%22src%22:%22https://cdn-icons-png.flaticon.com/512/3059/3059251.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
     <meta name="theme-color" content="#d32f2f">
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3059/3059251.png">
-
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
@@ -20,60 +18,98 @@
         input, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         .row { display: flex; gap: 10px; }
         .row div { flex: 1; }
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-save { background: #1976d2; color: white; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn-pdf { background: #2e7d32; color: white; }
-        .btn-clear { background: #757575; color: white; margin-top: 10px; width: 100%; }
-        #preview-img { width: 100%; margin-top: 15px; display: none; border-radius: 8px; border: 2px solid #ddd; }
-        .status { text-align: center; font-size: 12px; color: green; margin-top: 10px; display: none; }
+        .btn-clear { background: #757575; color: white; }
+        .btn-config { background: #546e7a; color: white; margin-top: 20px; font-size: 14px; padding: 10px; }
+        .btn-backup { background: #f57c00; color: white; margin-top: 10px; }
+        #preview-img { width: 100px; height: 100px; object-fit: cover; margin-top: 10px; display: none; border-radius: 8px; border: 2px solid #d32f2f; }
+        .historico { margin-top: 30px; border-top: 2px solid #ccc; padding-top: 10px; }
+        .item-historico { background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #d32f2f; font-size: 13px; }
+        .btn-rebaixar { background: #1976d2; color: white; padding: 5px 10px; width: auto; font-size: 12px; margin: 0; }
+        #aba-config { display: none; padding: 15px; background: #f0f0f0; border-radius: 8px; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Alcantara's Diesel</h2>
+    <h2 id="titulo-oficina">Alcantara's Diesel</h2>
     
-    <label>Cliente:</label>
-    <input type="text" id="cliente" placeholder="Nome do Cliente">
+    <div id="form-principal">
+        <label>Cliente:</label>
+        <input type="text" id="cliente" placeholder="Nome do Cliente">
 
-    <div class="row">
-        <div>
-            <label>Modelo:</label>
-            <input type="text" id="modelo" placeholder="Ex: Scania R450">
+        <div class="row">
+            <div><label>Modelo:</label><input type="text" id="modelo" placeholder="Scania"></div>
+            <div><label>Placa:</label><input type="text" id="placa" placeholder="ABC-1234"></div>
         </div>
-        <div>
-            <label>Placa:</label>
-            <input type="text" id="placa" placeholder="ABC-1234">
+
+        <label>KM Atual:</label>
+        <input type="number" id="km" placeholder="500000">
+
+        <label>Serviço Executado:</label>
+        <textarea id="servico_exec" rows="3" placeholder="O que foi feito no veículo..."></textarea>
+
+        <label>Orçamento (Serviço - Valor):</label>
+        <textarea id="servicos_lista" rows="4" placeholder="Ex: Filtro - 100&#10;Mão de obra - 200" oninput="calcularTotal()"></textarea>
+        
+        <label>Valor Total (R$):</label>
+        <input type="text" id="total" value="0.00" readonly style="background: #f9f9f9; font-weight: bold; color: #2e7d32;">
+
+        <label>Foto:</label>
+        <input type="file" id="foto" accept="image/*" onchange="processarFoto()">
+        <img id="preview-img">
+
+        <button class="btn-pdf" onclick="gerarPDF(true)">SALVAR E GERAR PDF</button>
+        <button class="btn-clear" onclick="limparTudo()">LIMPAR TELA</button>
+        
+        <button class="btn-config" onclick="toggleConfig()">⚙️ CONFIGURAÇÕES E BACKUP</button>
+
+        <div id="aba-config">
+            <h3>Configurações</h3>
+            <label>Nome da Oficina:</label>
+            <input type="text" id="nome-oficina-input" placeholder="Ex: Alcantara's Diesel">
+            <button class="btn-pdf" onclick="salvarConfig()">SALVAR NOME</button>
+            <hr>
+            <h3>Dados</h3>
+            <button class="btn-backup" onclick="exportarBackup()">EXPORTAR BACKUP (.JSON)</button>
+            <label>Importar Backup:</label>
+            <input type="file" id="import-file" accept=".json" onchange="importarBackup()">
+        </div>
+
+        <div class="historico">
+            <h3>Últimos Orçamentos</h3>
+            <div id="lista-historico"></div>
         </div>
     </div>
-
-    <label>KM Atual:</label>
-    <input type="number" id="km" placeholder="Ex: 500000">
-
-    <label>Peças Utilizadas:</label>
-    <textarea id="pecas" rows="3" placeholder="Descreva as peças..."></textarea>
-
-    <label>Serviços e Valores:</label>
-    <textarea id="servicos_lista" rows="4" placeholder="Ex: Troca de óleo - 200&#10;Revisão freios - 150" oninput="calcularTotal()"></textarea>
-    
-    <label>Valor Total (R$):</label>
-    <input type="text" id="total" value="0.00" readonly style="background: #f9f9f9; font-weight: bold; color: #2e7d32;">
-
-    <label>Foto (Câmera ou Galeria):</label>
-    <input type="file" id="foto" accept="image/*" onchange="processarFoto()">
-    <img id="preview-img">
-
-    <div class="btn-group">
-        <button class="btn-save" onclick="salvarDados()">SALVAR RASCUNHO</button>
-        <button class="btn-pdf" onclick="gerarPDF()">GERAR PDF</button>
-    </div>
-    <button class="btn-clear" onclick="limparTudo()">NOVA O.S. (LIMPAR)</button>
-    <div id="status" class="status">Dados salvos com sucesso! ✅</div>
 </div>
 
 <script>
     let fotoBase64 = "";
+    let nomeOficina = "Alcantara's Diesel";
+
+    window.onload = () => {
+        const configSalva = localStorage.getItem('config_oficina');
+        if(configSalva) {
+            nomeOficina = configSalva;
+            document.getElementById('titulo-oficina').innerText = nomeOficina;
+            document.getElementById('nome-oficina-input').value = nomeOficina;
+        }
+        carregarHistorico();
+    };
+
+    function toggleConfig() {
+        const aba = document.getElementById('aba-config');
+        aba.style.display = aba.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function salvarConfig() {
+        const novoNome = document.getElementById('nome-oficina-input').value;
+        if(novoNome) {
+            localStorage.setItem('config_oficina', novoNome);
+            location.reload();
+        }
+    }
 
     function calcularTotal() {
         const texto = document.getElementById('servicos_lista').value;
@@ -93,111 +129,129 @@
         const file = document.getElementById('foto').files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = function(event) {
-            const imgElement = new Image();
-            imgElement.src = event.target.result;
-            imgElement.onload = function() {
+        reader.onload = function(e) {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = function() {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800;
-                const scaleSize = MAX_WIDTH / imgElement.width;
-                canvas.width = MAX_WIDTH;
-                canvas.height = imgElement.height * scaleSize;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
-                fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                const imgPreview = document.getElementById('preview-img');
-                imgPreview.src = fotoBase64;
-                imgPreview.style.display = "block";
+                canvas.width = 400;
+                canvas.height = img.height * (400 / img.width);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                fotoBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                document.getElementById('preview-img').src = fotoBase64;
+                document.getElementById('preview-img').style.display = "block";
             }
         };
         reader.readAsDataURL(file);
     }
 
-    function salvarDados() {
+    function gerarPDF(salvar = false) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const data = new Date().toLocaleDateString('pt-BR');
+        
         const dados = {
             cliente: document.getElementById('cliente').value,
             placa: document.getElementById('placa').value,
             modelo: document.getElementById('modelo').value,
             km: document.getElementById('km').value,
-            pecas: document.getElementById('pecas').value,
+            servico_exec: document.getElementById('servico_exec').value,
             servicos_lista: document.getElementById('servicos_lista').value,
             total: document.getElementById('total').value,
-            foto: fotoBase64
+            foto: fotoBase64,
+            data: data
         };
-        localStorage.setItem('os_alcantara_data', JSON.stringify(dados));
-        document.getElementById('status').style.display = "block";
-        setTimeout(() => document.getElementById('status').style.display = "none", 3000);
-    }
 
-    window.onload = () => {
-        const salvos = localStorage.getItem('os_alcantara_data');
-        if (salvos) {
-            const d = JSON.parse(salvos);
-            document.getElementById('cliente').value = d.cliente || '';
-            document.getElementById('placa').value = d.placa || '';
-            document.getElementById('modelo').value = d.modelo || '';
-            document.getElementById('km').value = d.km || '';
-            document.getElementById('pecas').value = d.pecas || '';
-            document.getElementById('servicos_lista').value = d.servicos_lista || '';
-            document.getElementById('total').value = d.total || '0.00';
-            if (d.foto) {
-                fotoBase64 = d.foto;
-                document.getElementById('preview-img').src = fotoBase64;
-                document.getElementById('preview-img').style.display = "block";
-            }
+        if(salvar) {
+            let historico = JSON.parse(localStorage.getItem('alcantara_history') || "[]");
+            historico.unshift(dados);
+            localStorage.setItem('alcantara_history', JSON.stringify(historico));
+            carregarHistorico();
         }
-    };
 
-    function limparTudo() {
-        if(confirm("Limpar tudo para nova O.S?")) {
-            localStorage.removeItem('os_alcantara_data');
-            location.reload();
-        }
-    }
-
-    async function gerarPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const data = new Date().toLocaleDateString('pt-BR');
-        
+        doc.setFillColor(211, 47, 47);
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255);
         doc.setFontSize(22);
-        doc.setTextColor(211, 47, 47);
-        doc.text("ALCANTARA'S DIESEL", 105, 20, { align: "center" });
-        
+        doc.text(nomeOficina.toUpperCase(), 15, 25);
         doc.setFontSize(10);
+        doc.text(`O.S. VEICULAR | Data: ${data}`, 15, 33);
+
+        if (dados.foto) doc.addImage(dados.foto, 'JPEG', 150, 5, 45, 30);
+
         doc.setTextColor(0);
-        doc.text(`Ordem de Serviço | Data: ${data}`, 105, 28, { align: "center" });
-        doc.line(10, 32, 200, 32);
-
         doc.setFontSize(12);
-        doc.text(`Cliente: ${document.getElementById('cliente').value}`, 10, 40);
-        doc.text(`Veículo: ${document.getElementById('modelo').value}`, 10, 48);
-        doc.text(`Placa: ${document.getElementById('placa').value} | KM: ${document.getElementById('km').value}`, 10, 56);
-        doc.line(10, 60, 200, 60);
+        doc.text(`CLIENTE: ${dados.cliente}`, 15, 50);
+        doc.text(`VEÍCULO: ${dados.modelo} | PLACA: ${dados.placa} | KM: ${dados.km}`, 15, 58);
+        doc.line(15, 62, 195, 62);
 
-        doc.text("Peças:", 10, 68);
+        doc.setFont("helvetica", "bold");
+        doc.text("SERVIÇO EXECUTADO:", 15, 72);
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
-        doc.text(doc.splitTextToSize(document.getElementById('pecas').value, 180), 10, 74);
+        doc.text(doc.splitTextToSize(dados.servico_exec, 180), 15, 78);
 
-        doc.setFontSize(12);
-        doc.text("Serviços Realizados:", 10, 100);
-        doc.setFontSize(10);
-        doc.text(doc.splitTextToSize(document.getElementById('servicos_lista').value, 180), 10, 106);
+        doc.setFont("helvetica", "bold");
+        doc.text("ORÇAMENTO DETALHADO:", 15, 110);
+        doc.setFont("helvetica", "normal");
+        doc.text(doc.splitTextToSize(dados.servicos_lista, 180), 15, 116);
 
-        doc.setFontSize(14);
+        doc.setFontSize(16);
         doc.setTextColor(46, 125, 50);
-        doc.text(`VALOR TOTAL: R$ ${document.getElementById('total').value}`, 10, 150);
+        doc.text(`TOTAL GERAL: R$ ${dados.total}`, 15, 160);
 
-        if (fotoBase64) {
-            doc.addPage();
-            doc.setTextColor(0);
-            doc.text("Anexo Fotográfico:", 10, 20);
-            doc.addImage(fotoBase64, 'JPEG', 10, 30, 180, 0);
-        }
-
-        doc.save(`OS_${document.getElementById('placa').value}.pdf`);
+        doc.save(`OS_${dados.placa}.pdf`);
     }
-</script>
 
+    function carregarHistorico() {
+        const historico = JSON.parse(localStorage.getItem('alcantara_history') || "[]");
+        const lista = document.getElementById('lista-historico');
+        lista.innerHTML = "";
+        historico.slice(0, 15).forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = "item-historico";
+            div.innerHTML = `<span><b>${item.placa}</b> (${item.data})</span><button class="btn-rebaixar" onclick="baixarDeNovo(${index})">PDF</button>`;
+            lista.appendChild(div);
+        });
+    }
+
+    function baixarDeNovo(index) {
+        const historico = JSON.parse(localStorage.getItem('alcantara_history'));
+        const d = historico[index];
+        document.getElementById('cliente').value = d.cliente;
+        document.getElementById('placa').value = d.placa;
+        document.getElementById('modelo').value = d.modelo;
+        document.getElementById('km').value = d.km;
+        document.getElementById('servico_exec').value = d.servico_exec;
+        document.getElementById('servicos_lista').value = d.servicos_lista;
+        document.getElementById('total').value = d.total;
+        fotoBase64 = d.foto;
+        gerarPDF(false);
+    }
+
+    function exportarBackup() {
+        const data = localStorage.getItem('alcantara_history');
+        const blob = new Blob([data], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_oficina_${new Date().toLocaleDateString()}.json`;
+        a.click();
+    }
+
+    function importarBackup() {
+        const file = document.getElementById('import-file').files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            localStorage.setItem('alcantara_history', e.target.result);
+            alert("Backup Restaurado!");
+            location.reload();
+        };
+        reader.readAsText(file);
+    }
+
+    function limparTudo() { if(confirm("Limpar tela?")) location.reload(); }
+</script>
 </body>
 </html>
