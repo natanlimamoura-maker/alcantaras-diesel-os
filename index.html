@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alcantara's Diesel</title>
+    
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Alcantaras%20Diesel%22,%22short_name%22:%22Alcantaras%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#d32f2f%22,%22icons%22:[{%22src%22:%22https://cdn-icons-png.flaticon.com/512/3059/3059251.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
+    <meta name="theme-color" content="#d32f2f">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3059/3059251.png">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 15px; background: #eceff1; margin: 0; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; margin: auto; }
+        h2 { color: #d32f2f; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #d32f2f; padding-bottom: 10px; }
+        label { font-weight: bold; display: block; margin-top: 15px; color: #333; }
+        input, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-save { background: #1976d2; color: white; }
+        .btn-pdf { background: #2e7d32; color: white; }
+        .btn-clear { background: #757575; color: white; margin-top: 10px; width: 100%; }
+        #preview-img { width: 100%; margin-top: 15px; display: none; border-radius: 8px; border: 2px solid #ddd; }
+        .status { text-align: center; font-size: 12px; color: green; margin-top: 10px; display: none; }
+        .loading { font-size: 11px; color: #666; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Alcantara's Diesel</h2>
+    
+    <label>Placa:</label>
+    <input type="text" id="placa" placeholder="Ex: ABC-1234">
+
+    <label>Modelo / KM:</label>
+    <input type="text" id="modelo" placeholder="Ex: Scania R450 - 500.000km">
+
+    <label>Peças e Valores:</label>
+    <textarea id="pecas" rows="3" placeholder="Peças usadas e preços..."></textarea>
+
+    <label>Serviço Realizado:</label>
+    <textarea id="servico" rows="3" placeholder="O que foi feito no caminhão..."></textarea>
+
+    <label>Valor Total (R$):</label>
+    <input type="number" id="total" placeholder="0,00">
+
+    <label>Foto do Serviço (Câmara ou Galeria):</label>
+    <input type="file" id="foto" accept="image/*" onchange="processarFoto()">
+    <div id="loading-msg" class="loading">A comprimir imagem...</div>
+    <img id="preview-img">
+
+    <div class="btn-group">
+        <button class="btn-save" onclick="salvarDados()">SALVAR RASCUNHO</button>
+        <button class="btn-pdf" onclick="gerarPDF()">GERAR PDF</button>
+    </div>
+    <button class="btn-clear" onclick="limparTudo()">NOVA O.S. (LIMPAR)</button>
+    <div id="status" class="status">Dados salvos com sucesso! ✅</div>
+</div>
+
+<script>
+    let fotoBase64 = "";
+
+    window.onload = () => {
+        if (localStorage.getItem('os_data')) {
+            const dados = JSON.parse(localStorage.getItem('os_data'));
+            document.getElementById('placa').value = dados.placa || '';
+            document.getElementById('modelo').value = dados.modelo || '';
+            document.getElementById('pecas').value = dados.pecas || '';
+            document.getElementById('servico').value = dados.servico || '';
+            document.getElementById('total').value = dados.total || '';
+            if (dados.foto) {
+                fotoBase64 = dados.foto;
+                const img = document.getElementById('preview-img');
+                img.src = fotoBase64;
+                img.style.display = "block";
+            }
+        }
+    };
+
+    function processarFoto() {
+        const file = document.getElementById('foto').files[0];
+        if (!file) return;
+
+        document.getElementById('loading-msg').style.display = "block";
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            const imgElement = new Image();
+            imgElement.src = event.target.result;
+
+            imgElement.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 800; // Redimensiona para manter leve
+                const scaleSize = MAX_WIDTH / imgElement.width;
+                canvas.width = MAX_WIDTH;
+                canvas.height = imgElement.height * scaleSize;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
+
+                // Comprime para JPEG com qualidade 0.7 (Equilíbrio entre peso e nitidez)
+                fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                
+                const imgPreview = document.getElementById('preview-img');
+                imgPreview.src = fotoBase64;
+                imgPreview.style.display = "block";
+                document.getElementById('loading-msg').style.display = "none";
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function salvarDados() {
+        const dados = {
+            placa: document.getElementById('placa').value,
+            modelo: document.getElementById('modelo').value,
+            pecas: document.getElementById('pecas').value,
+            servico: document.getElementById('servico').value,
+            total: document.getElementById('total').value,
+            foto: fotoBase64
+        };
+        localStorage.setItem('os_data', JSON.stringify(dados));
+        const status = document.getElementById('status');
+        status.style.display = "block";
+        setTimeout(() => status.style.display = "none", 3000);
+    }
+
+    function limparTudo() {
+        if(confirm("Deseja limpar todos os campos para uma nova O.S?")) {
+            localStorage.removeItem('os_data');
+            location.reload();
+        }
+    }
+
+    async function gerarPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        const placa = document.getElementById('placa').value;
+        const modelo = document.getElementById('modelo').value;
+        const pecas = document.getElementById('pecas').value;
+        const servico = document.getElementById('servico').value;
+        const total = document.getElementById('total').value;
+        const data = new Date().toLocaleDateString('pt-BR');
+
+        doc.setFontSize(22);
+        doc.setTextColor(211, 47, 47);
+        doc.text("ALCANTARA'S DIESEL", 105, 20, { align: "center" });
+        
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Ordem de Serviço - Data: ${data}`, 105, 30, { align: "center" });
+        doc.line(10, 35, 200, 35);
+
+        doc.setFontSize(14);
+        doc.text(`Veículo: ${modelo}`, 10, 45);
+        doc.text(`Placa: ${placa}`, 10, 55);
+        doc.line(10, 60, 200, 60);
+
+        doc.text("Peças e Valores:", 10, 70);
+        doc.setFontSize(11);
+        doc.text(doc.splitTextToSize(pecas || "Nenhuma informada", 180), 10, 80);
+
+        doc.setFontSize(14);
+        doc.text("Serviço Realizado:", 10, 110);
+        doc.setFontSize(11);
+        doc.text(doc.splitTextToSize(servico || "Nenhum informado", 180), 10, 120);
+
+        doc.setFontSize(16);
+        doc.setTextColor(46, 125, 50);
+        doc.text(`TOTAL: R$ ${total}`, 10, 150);
+
+        if (fotoBase64) {
+            doc.addPage();
+            doc.setTextColor(0,0,0);
+            doc.text("Anexo Fotográfico:", 10, 20);
+            doc.addImage(fotoBase64, 'JPEG', 10, 30, 180, 0); // 0 no final mantém a proporção
+        }
+
+        doc.save(`OS_${placa}_${data}.pdf`);
+    }
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('data:text/javascript,self.addEventListener("fetch", (e) => {});');
+    }
+</script>
+
+</body>
+</html>
