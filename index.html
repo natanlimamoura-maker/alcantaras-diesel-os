@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alcantara's Diesel O.S.</title>
     
-    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Alcantaras%20Diesel%22%2C%22short_name%22%3A%22DieselOS%22%2C%22start_url%22%3A%22%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%23d32f2f%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F3059%2F3059251.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%22%7D%5D%7D">
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Alcantaras%20Diesel%22%2C%22short_name%22%3A%22DieselOS%22%2C%22start_url%22%3A%22%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%23d32f2f%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F3059%2F3059251.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
     <meta name="theme-color" content="#d32f2f">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -31,7 +31,7 @@
         .item-historico { background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #d32f2f; }
         #aba-config { display: none; padding: 15px; background: #f0f0f0; border-radius: 8px; margin-top: 15px; }
         .hidden-input { display: none; }
-        #bloqueio-licenca { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; color: white; text-align: center; padding-top: 50px; }
+        #bloqueio-licenca { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; color: white; text-align: center; padding-top: 50px; }
         .lock-card { background: #fff; color: #333; margin: 20px; padding: 30px; border-radius: 15px; }
         .licenca-info { background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; color: #d32f2f; text-align: center; border: 1px solid #d32f2f; }
     </style>
@@ -63,15 +63,15 @@
     <input type="number" id="km" placeholder="500000">
 
     <label>Serviço Executado:</label>
-    <textarea id="servico_exec" rows="3" placeholder="O que foi feito..."></textarea>
+    <textarea id="servico_exec" rows="3" placeholder="O que foi feito no veículo..."></textarea>
 
-    <label>Orçamento (Peça - Valor):</label>
-    <textarea id="servicos_lista" rows="4" placeholder="Filtro - 100" oninput="calcularTotal()"></textarea>
+    <label>Orçamento (Peça/Serviço - Valor):</label>
+    <textarea id="servicos_lista" rows="4" placeholder="Filtro - 100&#10;Troca oleo - 200" oninput="calcularTotal()"></textarea>
     
-    <label>Total (R$):</label>
+    <label>Valor Total (R$):</label>
     <input type="text" id="total" value="0.00" readonly style="background: #f9f9f9; font-weight: bold; color: #2e7d32;">
 
-    <label>Fotos:</label>
+    <label>Fotos do Orçamento:</label>
     <div class="row">
         <button class="btn-photo" onclick="document.getElementById('input-camera').click()">📸 Tirar Foto</button>
         <button class="btn-photo" onclick="document.getElementById('input-galeria').click()">🖼️ Galeria</button>
@@ -93,12 +93,12 @@
         <input type="text" id="nome-oficina-input">
         <button class="btn-pdf" onclick="salvarConfig()">SALVAR NOME</button>
         <hr>
-        <button style="background:#f57c00; color:white" onclick="exportarBackup()">EXPORTAR BACKUP</button>
+        <button style="background:#f57c00; color:white" onclick="exportarBackup()">EXPORTAR BACKUP (.JSON)</button>
         <input type="file" id="import-file" accept=".json" onchange="importarBackup()" style="font-size:12px; margin-top:10px">
     </div>
 
     <div class="historico">
-        <h3>Histórico</h3>
+        <h3>Histórico (Últimos 10)</h3>
         <div id="lista-historico"></div>
     </div>
 </div>
@@ -117,10 +117,10 @@
         }
         carregarHistorico();
 
-        // Registro de Service Worker para Vercel reconhecer PWA
+        // Service Worker Fake para PWA
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('data:text/javascript;base64,' + btoa('self.addEventListener("fetch", (e) => {});'))
-            .catch(err => console.log("SW error", err));
+            .catch(err => console.log("PWA Error", err));
         }
     };
 
@@ -145,8 +145,8 @@
     function verificarSenha() {
         if (document.getElementById('senha-renova').value === "0907") {
             localStorage.setItem('app_install_date', new Date().getTime());
-            alert("Renovado!"); location.reload();
-        } else alert("Incorreta!");
+            alert("Acesso Renovado por 30 dias!"); location.reload();
+        } else alert("Senha Incorreta!");
     }
 
     function toggleConfig() {
@@ -196,7 +196,7 @@
 
     function abrirNovaOS() {
         if(confirm("Deseja SALVAR esta O.S. antes de abrir uma nova?")) gerarPDF(true);
-        else if(confirm("Apagar tudo e começar nova?")) location.reload();
+        else if(confirm("Apagar tudo e começar nova O.S.?")) location.reload();
     }
 
     function gerarPDF(salvar = false) {
@@ -219,18 +219,19 @@
             h.unshift(d);
             localStorage.setItem('alcantara_history', JSON.stringify(h));
             carregarHistorico();
-            alert("Salvo!");
+            alert("Salvo no Histórico!");
         }
+        // PDF Layout
         doc.setFillColor(211, 47, 47); doc.rect(0, 0, 210, 40, 'F');
         doc.setTextColor(255); doc.setFontSize(22); doc.text(nomeOficina.toUpperCase(), 15, 25);
         if (d.foto) doc.addImage(d.foto, 'JPEG', 155, 5, 40, 30);
         doc.setTextColor(0); doc.setFontSize(12); doc.text(`CLIENTE: ${d.cliente}`, 15, 50);
         doc.text(`VEÍCULO: ${d.modelo} | PLACA: ${d.placa} | KM: ${d.km}`, 15, 58);
         doc.line(15, 62, 195, 62);
-        doc.text("SERVIÇO EXECUTADO:", 15, 72); doc.setFontSize(10);
-        doc.text(doc.splitTextToSize(d.servico_exec, 180), 15, 78);
-        doc.setFontSize(12); doc.text("ORÇAMENTO:", 15, 110);
-        doc.setFontSize(10); doc.text(doc.splitTextToSize(d.servicos_lista, 180), 15, 116);
+        doc.setFont("helvetica", "bold"); doc.text("SERVIÇO EXECUTADO:", 15, 72);
+        doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.text(doc.splitTextToSize(d.servico_exec, 180), 15, 78);
+        doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("ORÇAMENTO:", 15, 110);
+        doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.text(doc.splitTextToSize(d.servicos_lista, 180), 15, 116);
         doc.setFontSize(16); doc.setTextColor(46, 125, 50); doc.text(`TOTAL: R$ ${d.total}`, 15, 160);
         doc.save(`OS_${d.placa}.pdf`);
     }
@@ -242,7 +243,7 @@
         h.slice(0, 10).forEach((item, i) => {
             const div = document.createElement('div');
             div.className = "item-historico";
-            div.innerHTML = `<span><b>${item.placa}</b> - ${item.data}</span><button onclick="baixarNovamente(${i})" style="width:auto; padding:5px 10px; font-size:12px; background:#1976d2; color:white">PDF</button>`;
+            div.innerHTML = `<span><b>${item.placa}</b> - ${item.data}</span><button onclick="baixarNovamente(${i})" style="width:auto; padding:5px 10px; font-size:12px; background:#1976d2; color:white">BAIXAR PDF</button>`;
             lista.appendChild(div);
         });
     }
@@ -262,13 +263,13 @@
     function exportarBackup() {
         const b = new Blob([localStorage.getItem('alcantara_history')], {type: "application/json"});
         const u = URL.createObjectURL(b); const a = document.createElement('a');
-        a.href = u; a.download = `backup_diesel.json`; a.click();
+        a.href = u; a.download = `backup_os_diesel.json`; a.click();
     }
 
     function importarBackup() {
         const f = document.getElementById('import-file').files[0];
         const r = new FileReader();
-        r.onload = (e) => { localStorage.setItem('alcantara_history', e.target.result); location.reload(); };
+        r.onload = (e) => { localStorage.setItem('alcantara_history', e.target.result); alert("Histórico Restaurado!"); location.reload(); };
         r.readAsText(f);
     }
 </script>
