@@ -19,7 +19,6 @@
         label { font-weight: bold; display: block; margin-top: 15px; color: #333; }
         input, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         
-        /* Layout Orçamento */
         .item-linha { display: flex; gap: 8px; margin-top: 10px; align-items: center; background: #fdfdfd; padding: 5px; border-radius: 8px; border: 1px solid #eee; }
         .item-desc { flex: 3; }
         .item-val { flex: 1.5; }
@@ -71,8 +70,7 @@
     <textarea id="servico_exec" rows="2" placeholder="O que foi feito..."></textarea>
 
     <label>Orçamento Detalhado:</label>
-    <div id="lista-itens-orcamento">
-        </div>
+    <div id="lista-itens-orcamento"></div>
     <button type="button" class="btn-add-item" onclick="adicionarNovaLinhaItem()">+ ADICIONAR ITEM / PEÇA</button>
     
     <label>Valor Total (R$):</label>
@@ -118,7 +116,7 @@
             document.getElementById('titulo-oficina').innerText = configSalva;
             document.getElementById('nome-oficina-input').value = configSalva;
         }
-        adicionarNovaLinhaItem(); // Inicia com uma linha
+        adicionarNovaLinhaItem();
         carregarHistorico();
     };
 
@@ -142,9 +140,7 @@
     function calcularTotalOS() {
         const valores = document.querySelectorAll('.item-val');
         let soma = 0;
-        valores.forEach(v => {
-            if(v.value) soma += parseFloat(v.value);
-        });
+        valores.forEach(v => { if(v.value) soma += parseFloat(v.value); });
         document.getElementById('total').value = soma.toFixed(2);
     }
 
@@ -154,18 +150,16 @@
         linhas.forEach(l => {
             const d = l.querySelector('.item-desc').value;
             const v = l.querySelector('.item-val').value;
-            if(d || v) itens.push({ desc: d, val: v });
+            if(d.trim() !== "") { itens.push({ desc: d, val: v || "0.00" }); }
         });
         return itens;
     }
 
-    // Licença e Config
     function verificarLicenca() {
         const dataInicio = localStorage.getItem('app_install_date');
         const hoje = new Date().getTime();
-        if (!dataInicio) {
-            localStorage.setItem('app_install_date', hoje);
-        } else {
+        if (!dataInicio) { localStorage.setItem('app_install_date', hoje); } 
+        else {
             const diasRestantes = 30 - Math.floor((hoje - dataInicio) / (1000 * 60 * 60 * 24));
             document.getElementById('info-dias-licenca').innerText = `Licença: ${diasRestantes} dias restantes`;
             if (diasRestantes <= 0) document.getElementById('bloqueio-licenca').style.display = 'block';
@@ -176,7 +170,7 @@
         if (document.getElementById('senha-renova').value === "0907") {
             localStorage.setItem('app_install_date', new Date().getTime());
             location.reload();
-        } else alert("Senha Incorreta!");
+        } else alert("Incorreta!");
     }
 
     function toggleConfig() {
@@ -222,8 +216,7 @@
                     <button class="btn-mini" style="background:#1976d2" onclick="regerarPDF(${i})">PDF</button>
                     <button class="btn-mini" style="background:#f57c00" onclick="editarOS(${i})">EDITAR</button>
                     <button class="btn-mini" style="background:#d32f2f" onclick="excluirOS(${i})">EXCLUIR</button>
-                </div>
-            `;
+                </div>`;
             lista.appendChild(div);
         });
     }
@@ -236,19 +229,16 @@
         document.getElementById('km').value = d.km;
         document.getElementById('servico_exec').value = d.servico_exec;
         document.getElementById('lista-itens-orcamento').innerHTML = "";
-        d.itens.forEach(it => adicionarNovaLinhaItem(it.desc, it.val));
+        if(d.itens && d.itens.length > 0) { d.itens.forEach(it => adicionarNovaLinhaItem(it.desc, it.val)); }
+        else { adicionarNovaLinhaItem(); }
         calcularTotalOS();
         fotoBase64 = d.foto;
-        if(fotoBase64) {
-            document.getElementById('preview-img').src = fotoBase64;
-            document.getElementById('preview-img').style.display = "block";
-        }
-        editandoIndex = i;
-        window.scrollTo(0,0);
+        if(fotoBase64) { document.getElementById('preview-img').src = fotoBase64; document.getElementById('preview-img').style.display = "block"; }
+        editandoIndex = i; window.scrollTo(0,0);
     }
 
     function excluirOS(i) {
-        if(confirm("Excluir definitivamente?")) {
+        if(confirm("Excluir?")) {
             let h = JSON.parse(localStorage.getItem('alcantara_history'));
             h.splice(i, 1);
             localStorage.setItem('alcantara_history', JSON.stringify(h));
@@ -261,14 +251,14 @@
     function gerarPDF(salvar = false) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        const itens = coletarDadosItens();
+        const itensCapturados = coletarDadosItens();
         const d = {
             cliente: document.getElementById('cliente').value,
             placa: document.getElementById('placa').value,
             modelo: document.getElementById('modelo').value,
             km: document.getElementById('km').value,
             servico_exec: document.getElementById('servico_exec').value,
-            itens: itens,
+            itens: itensCapturados,
             total: document.getElementById('total').value,
             foto: fotoBase64,
             data: new Date().toLocaleDateString('pt-BR')
