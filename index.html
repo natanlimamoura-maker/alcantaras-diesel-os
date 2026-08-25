@@ -82,6 +82,22 @@
 
     </main>
 
+    <!-- MODAL DE VISUALIZAR FOTO EM TELA CHEIA -->
+    <div id="modal-foto" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-50 flex flex-col items-center justify-center p-4">
+        <div class="relative w-full max-w-lg bg-slate-800 p-4 rounded-3xl border border-slate-700 flex flex-col items-center gap-4 shadow-2xl">
+            <button onclick="fecharModalFoto()" class="absolute -top-3 -right-3 bg-red-600 text-white w-10 h-10 rounded-full font-bold shadow-lg flex items-center justify-center text-lg hover:bg-red-700 transition">&times;</button>
+            
+            <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wide">Foto do Veículo</h3>
+            <img id="foto-expandida" src="" class="w-full max-h-[65vh] object-contain rounded-2xl border border-slate-700 bg-slate-900">
+            
+            <div class="flex gap-3 w-full">
+                <a id="link-foto-original" href="#" target="_blank" rel="noopener noreferrer" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-3 rounded-2xl text-center text-xs uppercase flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Link Direto da Foto
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DE EDIÇÃO -->
     <div id="modal-editar" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-slate-800 text-white w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 border border-slate-700">
@@ -189,6 +205,20 @@
             }
         });
 
+        function verFoto(url) {
+            if (!url || url.includes('placehold.co')) {
+                alert('Este veículo não possui foto cadastrada.');
+                return;
+            }
+            document.getElementById('foto-expandida').src = url;
+            document.getElementById('link-foto-original').href = url;
+            document.getElementById('modal-foto').classList.remove('hidden');
+        }
+
+        function fecharModalFoto() {
+            document.getElementById('modal-foto').classList.add('hidden');
+        }
+
         function mudarAba(aba) {
             document.getElementById('aba-entrada').classList.add('hidden');
             document.getElementById('aba-patio').classList.add('hidden');
@@ -224,7 +254,8 @@
                     .from('fotos-veiculos')
                     .upload(nomeLimpo, arquivoFoto, {
                         cacheControl: '3600',
-                        upsert: true
+                        upsert: true,
+                        contentType: arquivoFoto.type || 'image/jpeg'
                     });
 
                 if(uploadError) {
@@ -281,9 +312,14 @@
 
             veiculosPatioMemoria.forEach((v, index) => {
                 const imgSrc = v.foto_url ? v.foto_url : 'https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto';
+                const temFoto = v.foto_url && v.foto_url.trim() !== '';
+
                 container.innerHTML += `
                     <div class="bg-slate-800 text-white p-4 rounded-3xl shadow-xl flex items-center justify-between gap-3 border border-slate-700">
-                        <img src="${imgSrc}" onerror="this.onerror=null; this.src='https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto';" class="w-16 h-16 rounded-2xl object-cover border border-slate-600">
+                        <div class="relative cursor-pointer" onclick="verFoto('${v.foto_url || ''}')" title="Clique para ampliar">
+                            <img src="${imgSrc}" onerror="this.onerror=null; this.src='https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto';" class="w-16 h-16 rounded-2xl object-cover border border-slate-600 hover:opacity-80 transition">
+                            ${temFoto ? '<span class="absolute -top-1 -right-1 bg-red-600 text-white text-[9px] p-1 rounded-full shadow flex items-center justify-center w-4 h-4"><i class="fa-solid fa-magnifying-glass"></i></span>' : ''}
+                        </div>
                         <div class="flex-1">
                             <h3 class="font-black italic text-red-500 text-lg">${v.placa}</h3>
                             <p class="text-xs text-slate-300 font-bold">${v.modelo}</p>
@@ -307,7 +343,6 @@
             document.getElementById('edit-modelo').value = v.modelo;
             document.getElementById('edit-cliente').value = v.cliente;
             
-            // Reseta o input de foto do modal de edição
             document.getElementById('edit-foto').value = '';
             document.getElementById('edit-preview-foto-nome').innerText = 'Deixe em branco para manter a foto atual';
             arquivoFotoEditar = null;
@@ -332,7 +367,6 @@
 
             const dadosAtualizar = { placa, modelo, cliente };
 
-            // Se o usuário selecionou uma nova foto no modal de edição, faz o upload dela
             if(arquivoFotoEditar) {
                 const extensao = arquivoFotoEditar.name.split('.').pop();
                 const nomeLimpo = `${Date.now()}.${extensao}`;
@@ -341,7 +375,8 @@
                     .from('fotos-veiculos')
                     .upload(nomeLimpo, arquivoFotoEditar, {
                         cacheControl: '3600',
-                        upsert: true
+                        upsert: true,
+                        contentType: arquivoFotoEditar.type || 'image/jpeg'
                     });
 
                 if(uploadError) {
@@ -434,13 +469,23 @@
 
             data.forEach(v => {
                 const dataSaidaFormatada = v.data_saida ? new Date(v.data_saida).toLocaleDateString('pt-BR') : 'Data N/I';
+                const temFoto = v.foto_url && v.foto_url.trim() !== '';
+
                 container.innerHTML += `
                     <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-2 text-sm">
                         <div class="flex justify-between items-center border-b border-slate-700 pb-2">
                             <span class="font-bold text-red-500 text-base">${v.placa}</span>
                             <span class="text-[10px] bg-emerald-900 text-emerald-300 font-bold px-2 py-1 rounded-md border border-emerald-700 uppercase">LIBERADO (${dataSaidaFormatada})</span>
                         </div>
-                        <div class="text-xs text-slate-300 font-medium">${v.modelo} - Cliente: ${v.cliente}</div>
+                        <div class="flex items-center gap-3">
+                            ${temFoto ? `
+                                <img src="${v.foto_url}" onclick="verFoto('${v.foto_url}')" onerror="this.onerror=null; this.src='https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto';" class="w-12 h-12 rounded-xl object-cover border border-slate-600 cursor-pointer">
+                            ` : ''}
+                            <div class="text-xs text-slate-300 font-medium">
+                                <strong>${v.modelo}</strong><br>
+                                Cliente: ${v.cliente}
+                            </div>
+                        </div>
                         <div class="text-xs text-slate-200 bg-slate-900 p-3 rounded-xl border border-slate-700">
                             <strong class="text-red-400">Relatório / Serviço:</strong><br>
                             ${v.servico_realizado || 'Sem observações'}
