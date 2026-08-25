@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Pátio - Nuvem Supabase</title>
+    <title>Controle de Pátio</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS Client -->
@@ -31,33 +31,33 @@
 
         <!-- ABA 1: ENTRADA -->
         <section id="aba-entrada" class="space-y-4">
-            <div class="bg-white text-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
-                <h2 class="text-red-600 font-bold text-lg uppercase italic">Nova Entrada</h2>
+            <div class="bg-slate-800 text-white p-6 rounded-3xl shadow-xl space-y-4 border border-slate-700">
+                <h2 class="text-red-500 font-bold text-lg uppercase italic">Nova Entrada</h2>
                 
                 <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase">Placa</label>
-                    <input type="text" id="input-placa" placeholder="EX: EJD5D22" class="w-full bg-slate-100 p-4 rounded-xl font-bold uppercase text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <label class="text-xs font-bold text-slate-400 uppercase">Placa</label>
+                    <input type="text" id="input-placa" placeholder="EX: EJD5D22" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-bold uppercase text-white focus:outline-none focus:ring-2 focus:ring-red-500">
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase">Modelo do Veículo</label>
-                    <input type="text" id="input-modelo" placeholder="EX: IVECO DAILY" class="w-full bg-slate-100 p-4 rounded-xl font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <label class="text-xs font-bold text-slate-400 uppercase">Modelo do Veículo</label>
+                    <input type="text" id="input-modelo" placeholder="EX: IVECO DAILY" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-medium text-white focus:outline-none focus:ring-2 focus:ring-red-500">
                 </div>
 
                 <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase">Nome do Cliente</label>
-                    <input type="text" id="input-cliente" placeholder="EX: TRANSPANTANAL" class="w-full bg-slate-100 p-4 rounded-xl font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <label class="text-xs font-bold text-slate-400 uppercase">Nome do Cliente</label>
+                    <input type="text" id="input-cliente" placeholder="EX: TRANSPANTANAL" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-medium text-white focus:outline-none focus:ring-2 focus:ring-red-500">
                 </div>
 
                 <div class="flex items-center gap-4 pt-2">
-                    <label class="border-2 border-dashed border-red-300 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-red-50 transition w-1/3">
+                    <label class="border-2 border-dashed border-red-500 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-700 transition w-1/3">
                         <i class="fa-solid fa-camera text-2xl text-red-500"></i>
-                        <span class="text-[10px] font-bold text-red-600 mt-1">FOTO</span>
+                        <span class="text-[10px] font-bold text-red-400 mt-1">FOTO</span>
                         <input type="file" id="input-foto" accept="image/*" class="hidden">
                     </label>
                     
                     <button onclick="salvarVeiculo()" class="w-2/3 bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg transition uppercase tracking-wider">
-                        Salvar
+                        Salvar Entrada
                     </button>
                 </div>
                 <div id="preview-foto-nome" class="text-xs text-slate-400 italic">Nenhuma foto selecionada</div>
@@ -83,59 +83,63 @@
     </main>
 
     <!-- MODAL DE EDIÇÃO -->
-    <div id="modal-editar" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white text-slate-800 w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4">
-            <div class="flex justify-between items-center">
-                <h2 class="text-red-600 font-bold text-lg uppercase italic">Editar Ordem</h2>
-                <button onclick="fecharModalEditar()" class="text-slate-400 hover:text-slate-700 text-xl font-bold">&times;</button>
+    <div id="modal-editar" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 text-white w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 border border-slate-700">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                <h2 class="text-red-500 font-bold text-lg uppercase italic">Editar Cadastro</h2>
+                <button onclick="fecharModalEditar()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
             </div>
             
             <input type="hidden" id="edit-id">
 
             <div>
-                <label class="text-xs font-bold text-slate-500 uppercase">Placa</label>
-                <input type="text" id="edit-placa" class="w-full bg-slate-100 p-4 rounded-xl font-bold uppercase text-slate-700 focus:outline-none">
+                <label class="text-xs font-bold text-slate-400 uppercase">Placa</label>
+                <input type="text" id="edit-placa" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-bold uppercase text-white focus:outline-none focus:ring-2 focus:ring-red-500">
             </div>
 
             <div>
-                <label class="text-xs font-bold text-slate-500 uppercase">Modelo do Veículo</label>
-                <input type="text" id="edit-modelo" class="w-full bg-slate-100 p-4 rounded-xl font-medium text-slate-700 focus:outline-none">
+                <label class="text-xs font-bold text-slate-400 uppercase">Modelo do Veículo</label>
+                <input type="text" id="edit-modelo" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-medium text-white focus:outline-none focus:ring-2 focus:ring-red-500">
             </div>
 
             <div>
-                <label class="text-xs font-bold text-slate-500 uppercase">Nome do Cliente</label>
-                <input type="text" id="edit-cliente" class="w-full bg-slate-100 p-4 rounded-xl font-medium text-slate-700 focus:outline-none">
+                <label class="text-xs font-bold text-slate-400 uppercase">Nome do Cliente</label>
+                <input type="text" id="edit-cliente" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-medium text-white focus:outline-none focus:ring-2 focus:ring-red-500">
             </div>
 
             <div class="flex gap-3 pt-2">
-                <button onclick="fecharModalEditar()" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-2xl transition uppercase">Cancelar</button>
-                <button onclick="atualizarVeiculo()" class="w-1/2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-2xl shadow transition uppercase">Atualizar</button>
+                <button onclick="fecharModalEditar()" class="w-1/2 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-2xl transition uppercase">Cancelar</button>
+                <button onclick="atualizarVeiculo()" class="w-1/2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-2xl shadow transition uppercase">Salvar Alterações</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DE SAÍDA / SERVIÇO REALIZADO -->
-    <div id="modal-saida" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white text-slate-800 w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4">
-            <h2 class="text-emerald-600 font-bold text-lg uppercase italic">Registrar Saída</h2>
-            <p class="text-xs text-slate-500">Informe o que foi realizado no veículo para salvar no histórico:</p>
+    <!-- MODAL DE SAÍDA / RELATÓRIO DE SERVIÇO -->
+    <div id="modal-saida" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 text-white w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 border border-slate-700">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                <h2 class="text-emerald-400 font-bold text-lg uppercase italic">Relatório de Saída</h2>
+                <button onclick="fecharModalSaida()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+            </div>
+            
+            <p id="saida-placa-label" class="text-sm font-bold text-red-400 bg-slate-900 p-3 rounded-xl border border-slate-700 text-center"></p>
             
             <input type="hidden" id="saida-id">
 
             <div>
-                <label class="text-xs font-bold text-slate-500 uppercase">Serviço / O que foi feito</label>
-                <textarea id="saida-servico" rows="3" placeholder="EX: REVISÃO DE BICOS INJETORES E TROCA DE FILTRO" class="w-full bg-slate-100 p-4 rounded-xl font-medium text-slate-700 focus:outline-none"></textarea>
+                <label class="text-xs font-bold text-slate-400 uppercase">Serviço Realizado / Observações</label>
+                <textarea id="saida-servico" rows="4" placeholder="EX: REVISÃO DE BICOS INJETORES, TROCA DE FILTRO E TESTE DE BANCADA." class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-medium text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
             </div>
 
             <div class="flex gap-3 pt-2">
-                <button onclick="fecharModalSaida()" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-2xl transition uppercase">Cancelar</button>
-                <button onclick="confirmarSaida()" class="w-1/2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-2xl shadow transition uppercase">Liberar Saída</button>
+                <button onclick="fecharModalSaida()" class="w-1/2 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-2xl transition uppercase">Cancelar</button>
+                <button onclick="confirmarSaida()" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl shadow transition uppercase">Liberar Veículo</button>
             </div>
         </div>
     </div>
 
     <!-- MENU INFERIOR FIXO -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700 flex justify-around py-3 shadow-2xl z-40">
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around py-3 shadow-2xl z-40">
         <button onclick="mudarAba('entrada')" id="nav-entrada" class="flex flex-col items-center text-red-500">
             <i class="fa-solid fa-plus text-lg"></i>
             <span class="text-[10px] font-bold mt-1">ENTRADA</span>
@@ -157,6 +161,7 @@
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let arquivoFoto = null;
+        let veiculosPatioMemoria = [];
 
         document.getElementById('input-foto').addEventListener('change', (e) => {
             arquivoFoto = e.target.files[0];
@@ -182,9 +187,9 @@
         }
 
         async function salvarVeiculo() {
-            const placa = document.getElementById('input-placa').value.toUpperCase();
-            const modelo = document.getElementById('input-modelo').value.toUpperCase();
-            const cliente = document.getElementById('input-cliente').value.toUpperCase();
+            const placa = document.getElementById('input-placa').value.toUpperCase().trim();
+            const modelo = document.getElementById('input-modelo').value.toUpperCase().trim();
+            const cliente = document.getElementById('input-cliente').value.toUpperCase().trim();
 
             if(!placa || !modelo || !cliente) {
                 alert('Preencha todos os campos!');
@@ -193,7 +198,6 @@
 
             let fotoUrl = '';
             if(arquivoFoto) {
-                // Gera um nome limpo para evitar problemas com caracteres especiais/espaços
                 const extensao = arquivoFoto.name.split('.').pop();
                 const nomeLimpo = `${Date.now()}.${extensao}`;
 
@@ -206,7 +210,6 @@
 
                 if(uploadError) {
                     alert('Erro ao enviar foto para o Storage: ' + uploadError.message);
-                    console.error('Erro no Upload:', uploadError);
                     return;
                 }
 
@@ -223,7 +226,6 @@
 
             if(error) {
                 alert('Erro ao salvar no banco: ' + error.message);
-                console.error('Erro no Banco:', error);
             } else {
                 alert('Veículo cadastrado com sucesso!');
                 document.getElementById('input-placa').value = '';
@@ -244,40 +246,47 @@
                 .order('data_entrada', { ascending: false });
 
             if(error) {
-                console.error(error);
+                alert('Erro ao carregar lista: ' + error.message);
                 return;
             }
 
-            document.getElementById('contador-patio').innerText = `${data.length} NO PÁTIO`;
+            veiculosPatioMemoria = data || [];
+            document.getElementById('contador-patio').innerText = `${veiculosPatioMemoria.length} NO PÁTIO`;
             const container = document.getElementById('lista-patio');
             container.innerHTML = '';
 
-            data.forEach(v => {
+            if(veiculosPatioMemoria.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-500 py-8 italic">Nenhum veículo no pátio.</p>`;
+                return;
+            }
+
+            veiculosPatioMemoria.forEach((v, index) => {
                 const imgSrc = v.foto_url ? v.foto_url : 'https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto';
-          container.innerHTML += `
-    <div class="bg-white text-slate-800 p-4 rounded-3xl shadow-xl flex items-center justify-between gap-3">
-        <img src="${v.foto_url || 'https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto'}" 
-             onerror="this.onerror=null; this.src='https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto';" 
-             class="w-16 h-16 rounded-2xl object-cover border">
-        <div class="flex-1">
-            <h3 class="font-black italic text-slate-900">${v.placa}</h3>
-            <p class="text-xs text-slate-500 font-bold">${v.modelo}</p>
-            <p class="text-[10px] text-red-600 font-semibold">${v.cliente}</p>
-        </div>
-        <div class="flex flex-col gap-2">
-            <button onclick="abrirModalEditar('${v.id}', '${v.placa}', '${v.modelo}', '${v.cliente}')" class="bg-red-100 hover:bg-red-200 text-red-600 text-[10px] font-bold px-3 py-2 rounded-xl transition">EDITAR</button>
-            <button onclick="abrirModalSaida('${v.id}')" class="bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-bold px-3 py-2 rounded-xl shadow transition">SAÍDA</button>
-        </div>
-    </div>
-`;
+                container.innerHTML += `
+                    <div class="bg-slate-800 text-white p-4 rounded-3xl shadow-xl flex items-center justify-between gap-3 border border-slate-700">
+                        <img src="${imgSrc}" onerror="this.onerror=null; this.src='https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto';" class="w-16 h-16 rounded-2xl object-cover border border-slate-600">
+                        <div class="flex-1">
+                            <h3 class="font-black italic text-red-500 text-lg">${v.placa}</h3>
+                            <p class="text-xs text-slate-300 font-bold">${v.modelo}</p>
+                            <p class="text-[11px] text-slate-400">${v.cliente}</p>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="abrirModalEditar(${index})" class="bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-3 py-2 rounded-xl transition">EDITAR</button>
+                            <button onclick="abrirModalSaida(${index})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-3 py-2 rounded-xl shadow transition">SAÍDA</button>
+                        </div>
+                    </div>
+                `;
             });
         }
 
-        function abrirModalEditar(id, placa, modelo, cliente) {
-            document.getElementById('edit-id').value = id;
-            document.getElementById('edit-placa').value = placa;
-            document.getElementById('edit-modelo').value = modelo;
-            document.getElementById('edit-cliente').value = cliente;
+        function abrirModalEditar(index) {
+            const v = veiculosPatioMemoria[index];
+            if(!v) return;
+
+            document.getElementById('edit-id').value = v.id;
+            document.getElementById('edit-placa').value = v.placa;
+            document.getElementById('edit-modelo').value = v.modelo;
+            document.getElementById('edit-cliente').value = v.cliente;
             document.getElementById('modal-editar').classList.remove('hidden');
         }
 
@@ -287,9 +296,14 @@
 
         async function atualizarVeiculo() {
             const id = document.getElementById('edit-id').value;
-            const placa = document.getElementById('edit-placa').value.toUpperCase();
-            const modelo = document.getElementById('edit-modelo').value.toUpperCase();
-            const cliente = document.getElementById('edit-cliente').value.toUpperCase();
+            const placa = document.getElementById('edit-placa').value.toUpperCase().trim();
+            const modelo = document.getElementById('edit-modelo').value.toUpperCase().trim();
+            const cliente = document.getElementById('edit-cliente').value.toUpperCase().trim();
+
+            if(!placa || !modelo || !cliente) {
+                alert('Preencha todos os campos!');
+                return;
+            }
 
             const { error } = await supabaseClient
                 .from('patio_veiculos')
@@ -297,15 +311,20 @@
                 .eq('id', id);
 
             if(error) {
-                alert('Erro ao atualizar: ' + error.message);
+                alert('Erro ao atualizar no banco: ' + error.message);
             } else {
+                alert('Veículo atualizado com sucesso!');
                 fecharModalEditar();
                 carregarPatio();
             }
         }
 
-        function abrirModalSaida(id) {
-            document.getElementById('saida-id').value = id;
+        function abrirModalSaida(index) {
+            const v = veiculosPatioMemoria[index];
+            if(!v) return;
+
+            document.getElementById('saida-id').value = v.id;
+            document.getElementById('saida-placa-label').innerText = `${v.placa} - ${v.modelo} (${v.cliente})`;
             document.getElementById('saida-servico').value = '';
             document.getElementById('modal-saida').classList.remove('hidden');
         }
@@ -316,10 +335,10 @@
 
         async function confirmarSaida() {
             const id = document.getElementById('saida-id').value;
-            const servico = document.getElementById('saida-servico').value.toUpperCase();
+            const servico = document.getElementById('saida-servico').value.toUpperCase().trim();
 
             if(!servico) {
-                alert('Informe o que foi feito no veículo antes de liberar a saída.');
+                alert('Descreva o relatório do serviço antes de liberar!');
                 return;
             }
 
@@ -327,7 +346,7 @@
                 .from('patio_veiculos')
                 .update({ 
                     status: 'SAIU', 
-                    data_saida: new Date(),
+                    data_saida: new Date().toISOString(),
                     servico_realizado: servico 
                 })
                 .eq('id', id);
@@ -335,6 +354,7 @@
             if(error) {
                 alert('Erro ao registrar saída: ' + error.message);
             } else {
+                alert('Saída registrada com sucesso!');
                 fecharModalSaida();
                 carregarPatio();
             }
@@ -346,27 +366,37 @@
                 .select('*')
                 .eq('status', 'SAIU')
                 .order('data_saida', { ascending: false })
-                .limit(20);
+                .limit(30);
 
             const container = document.getElementById('lista-historico');
             container.innerHTML = '';
 
-            if(data) {
-                data.forEach(v => {
-                    container.innerHTML += `
-                        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-1 text-sm">
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-white">${v.placa}</span>
-                                <span class="text-[10px] text-emerald-400 font-bold uppercase">LIBERADO</span>
-                            </div>
-                            <div class="text-xs text-slate-400 font-medium">${v.modelo} - Cliente: ${v.cliente}</div>
-                            <div class="text-xs text-red-300 bg-slate-900 p-2 rounded-xl mt-1 border border-slate-700">
-                                <strong>Serviço:</strong> ${v.servico_realizado || 'Não especificado'}
-                            </div>
-                        </div>
-                    `;
-                });
+            if(error) {
+                alert('Erro ao carregar histórico: ' + error.message);
+                return;
             }
+
+            if(!data || data.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-500 py-8 italic">Nenhuma saída registrada.</p>`;
+                return;
+            }
+
+            data.forEach(v => {
+                const dataSaidaFormatada = v.data_saida ? new Date(v.data_saida).toLocaleDateString('pt-BR') : 'Data N/I';
+                container.innerHTML += `
+                    <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-2 text-sm">
+                        <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                            <span class="font-bold text-red-500 text-base">${v.placa}</span>
+                            <span class="text-[10px] bg-emerald-900 text-emerald-300 font-bold px-2 py-1 rounded-md border border-emerald-700 uppercase">LIBERADO (${dataSaidaFormatada})</span>
+                        </div>
+                        <div class="text-xs text-slate-300 font-medium">${v.modelo} - Cliente: ${v.cliente}</div>
+                        <div class="text-xs text-slate-200 bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <strong class="text-red-400">Relatório / Serviço:</strong><br>
+                            ${v.servico_realizado || 'Sem observações'}
+                        </div>
+                    </div>
+                `;
+            });
         }
 
         if ('serviceWorker' in navigator) {
