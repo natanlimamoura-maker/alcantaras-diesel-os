@@ -254,20 +254,22 @@
 
             data.forEach(v => {
                 const imgSrc = v.foto_url ? v.foto_url : 'https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto';
-                container.innerHTML += `
-                    <div class="bg-white text-slate-800 p-4 rounded-3xl shadow-xl flex items-center justify-between gap-3">
-                        <img src="${imgSrc}" class="w-16 h-16 rounded-2xl object-cover border">
-                        <div class="flex-1">
-                            <h3 class="font-black italic text-slate-900">${v.placa}</h3>
-                            <p class="text-xs text-slate-500 font-bold">${v.modelo}</p>
-                            <p class="text-[10px] text-red-600 font-semibold">${v.cliente}</p>
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <button onclick="abrirModalEditar('${v.id}', '${v.placa}', '${v.modelo}', '${v.cliente}')" class="bg-red-100 hover:bg-red-200 text-red-600 text-[10px] font-bold px-3 py-2 rounded-xl transition">EDITAR</button>
-                            <button onclick="abrirModalSaida('${v.id}')" class="bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-bold px-3 py-2 rounded-xl shadow transition">SAÍDA</button>
-                        </div>
-                    </div>
-                `;
+          container.innerHTML += `
+    <div class="bg-white text-slate-800 p-4 rounded-3xl shadow-xl flex items-center justify-between gap-3">
+        <img src="${v.foto_url || 'https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto'}" 
+             onerror="this.onerror=null; this.src='https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto';" 
+             class="w-16 h-16 rounded-2xl object-cover border">
+        <div class="flex-1">
+            <h3 class="font-black italic text-slate-900">${v.placa}</h3>
+            <p class="text-xs text-slate-500 font-bold">${v.modelo}</p>
+            <p class="text-[10px] text-red-600 font-semibold">${v.cliente}</p>
+        </div>
+        <div class="flex flex-col gap-2">
+            <button onclick="abrirModalEditar('${v.id}', '${v.placa}', '${v.modelo}', '${v.cliente}')" class="bg-red-100 hover:bg-red-200 text-red-600 text-[10px] font-bold px-3 py-2 rounded-xl transition">EDITAR</button>
+            <button onclick="abrirModalSaida('${v.id}')" class="bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-bold px-3 py-2 rounded-xl shadow transition">SAÍDA</button>
+        </div>
+    </div>
+`;
             });
         }
 
