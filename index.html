@@ -107,6 +107,17 @@
                 <input type="text" id="edit-cliente" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-medium text-white focus:outline-none focus:ring-2 focus:ring-red-500">
             </div>
 
+            <!-- CAMPO NOVA FOTO -->
+            <div>
+                <label class="text-xs font-bold text-slate-400 uppercase">Alterar Foto (Opcional)</label>
+                <label class="mt-1 border-2 border-dashed border-slate-600 rounded-2xl p-3 flex items-center justify-center gap-3 cursor-pointer hover:bg-slate-700 transition w-full">
+                    <i class="fa-solid fa-camera text-xl text-red-500"></i>
+                    <span class="text-xs font-bold text-slate-300">Trocar Imagem</span>
+                    <input type="file" id="edit-foto" accept="image/*" class="hidden">
+                </label>
+                <div id="edit-preview-foto-nome" class="text-[11px] text-slate-400 italic mt-1">Deixe em branco para manter a foto atual</div>
+            </div>
+
             <div class="flex gap-3 pt-2">
                 <button onclick="fecharModalEditar()" class="w-1/2 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-2xl transition uppercase">Cancelar</button>
                 <button onclick="atualizarVeiculo()" class="w-1/2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-2xl shadow transition uppercase">Salvar Alterações</button>
@@ -161,12 +172,20 @@
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let arquivoFoto = null;
+        let arquivoFotoEditar = null;
         let veiculosPatioMemoria = [];
 
         document.getElementById('input-foto').addEventListener('change', (e) => {
             arquivoFoto = e.target.files[0];
             if(arquivoFoto) {
                 document.getElementById('preview-foto-nome').innerText = "Foto selecionada: " + arquivoFoto.name;
+            }
+        });
+
+        document.getElementById('edit-foto').addEventListener('change', (e) => {
+            arquivoFotoEditar = e.target.files[0];
+            if(arquivoFotoEditar) {
+                document.getElementById('edit-preview-foto-nome').innerText = "Nova foto: " + arquivoFotoEditar.name;
             }
         });
 
@@ -287,6 +306,12 @@
             document.getElementById('edit-placa').value = v.placa;
             document.getElementById('edit-modelo').value = v.modelo;
             document.getElementById('edit-cliente').value = v.cliente;
+            
+            // Reseta o input de foto do modal de edição
+            document.getElementById('edit-foto').value = '';
+            document.getElementById('edit-preview-foto-nome').innerText = 'Deixe em branco para manter a foto atual';
+            arquivoFotoEditar = null;
+
             document.getElementById('modal-editar').classList.remove('hidden');
         }
 
@@ -305,9 +330,35 @@
                 return;
             }
 
+            const dadosAtualizar = { placa, modelo, cliente };
+
+            // Se o usuário selecionou uma nova foto no modal de edição, faz o upload dela
+            if(arquivoFotoEditar) {
+                const extensao = arquivoFotoEditar.name.split('.').pop();
+                const nomeLimpo = `${Date.now()}.${extensao}`;
+
+                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                    .from('fotos-veiculos')
+                    .upload(nomeLimpo, arquivoFotoEditar, {
+                        cacheControl: '3600',
+                        upsert: true
+                    });
+
+                if(uploadError) {
+                    alert('Erro ao enviar nova foto: ' + uploadError.message);
+                    return;
+                }
+
+                const { data: publicData } = supabaseClient.storage
+                    .from('fotos-veiculos')
+                    .getPublicUrl(nomeLimpo);
+
+                dadosAtualizar.foto_url = publicData.publicUrl;
+            }
+
             const { error } = await supabaseClient
                 .from('patio_veiculos')
-                .update({ placa, modelo, cliente })
+                .update(dadosAtualizar)
                 .eq('id', id);
 
             if(error) {
