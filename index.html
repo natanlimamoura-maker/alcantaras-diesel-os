@@ -80,6 +80,19 @@
             </div>
         </section>
 
+        <!-- ABA 4: OPÇÕES / MANUTENÇÃO -->
+        <section id="aba-opcoes" class="hidden space-y-4">
+            <div class="bg-slate-800 text-white p-6 rounded-3xl shadow-xl space-y-4 border border-slate-700">
+                <h2 class="text-red-500 font-bold text-lg uppercase italic">Opções do App</h2>
+                <p class="text-xs text-slate-400">Caso o celular esteja mostrando uma versão antiga ou com problemas para carregar imagens, use o botão abaixo para limpar a memória do app.</p>
+                
+                <button onclick="forcarAtualizacao()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg transition uppercase tracking-wider flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrows-rotate text-lg"></i>
+                    Forçar Atualização e Limpar Cache
+                </button>
+            </div>
+        </section>
+
     </main>
 
     <!-- MODAL DE VISUALIZAR FOTO EM TELA CHEIA -->
@@ -179,6 +192,10 @@
             <i class="fa-solid fa-clipboard-list text-lg"></i>
             <span class="text-[10px] font-bold mt-1">HISTÓRICO</span>
         </button>
+        <button onclick="mudarAba('opcoes')" id="nav-opcoes" class="flex flex-col items-center text-slate-400">
+            <i class="fa-solid fa-gear text-lg"></i>
+            <span class="text-[10px] font-bold mt-1">OPÇÕES</span>
+        </button>
     </nav>
 
     <!-- SCRIPT DE CONEXÃO E LÓGICA -->
@@ -223,16 +240,37 @@
             document.getElementById('aba-entrada').classList.add('hidden');
             document.getElementById('aba-patio').classList.add('hidden');
             document.getElementById('aba-historico').classList.add('hidden');
+            document.getElementById('aba-opcoes').classList.add('hidden');
 
             document.getElementById('nav-entrada').className = "flex flex-col items-center text-slate-400";
             document.getElementById('nav-patio').className = "flex flex-col items-center text-slate-400";
             document.getElementById('nav-historico').className = "flex flex-col items-center text-slate-400";
+            document.getElementById('nav-opcoes').className = "flex flex-col items-center text-slate-400";
 
             document.getElementById(`aba-${aba}`).classList.remove('hidden');
             document.getElementById(`nav-${aba}`).className = "flex flex-col items-center text-red-500";
 
             if(aba === 'patio') carregarPatio();
             if(aba === 'historico') carregarHistorico();
+        }
+
+        async function forcarAtualizacao() {
+            if (confirm("Deseja forçar a atualização do aplicativo e limpar a memória cache do celular?")) {
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                    }
+                }
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    for (let key of keys) {
+                        await caches.delete(key);
+                    }
+                }
+                alert("Cache limpo! O aplicativo será recarregado.");
+                window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
+            }
         }
 
         async function salvarVeiculo() {
