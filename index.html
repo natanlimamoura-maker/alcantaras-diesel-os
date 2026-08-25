@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pátio Pro - Nuvem Supabase</title>
@@ -12,6 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- FontAwesome para Ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans pb-24">
 
@@ -68,7 +68,7 @@
         <section id="aba-patio" class="hidden space-y-4">
             <h2 class="text-lg font-bold text-slate-300 px-2">Veículos no Pátio</h2>
             <div id="lista-patio" class="space-y-4">
-                <!-- Os cards entram dinamicamente via JS -->
+                <!-- Cards dinâmicos -->
             </div>
         </section>
 
@@ -82,8 +82,60 @@
 
     </main>
 
+    <!-- MODAL DE EDIÇÃO -->
+    <div id="modal-editar" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white text-slate-800 w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-blue-600 font-bold text-lg uppercase italic">Editar Ordem</h2>
+                <button onclick="fecharModalEditar()" class="text-slate-400 hover:text-slate-700 text-xl font-bold">&times;</button>
+            </div>
+            
+            <input type="hidden" id="edit-id">
+
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase">Placa</label>
+                <input type="text" id="edit-placa" class="w-full bg-slate-100 p-4 rounded-xl font-bold uppercase text-slate-700 focus:outline-none">
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase">Modelo do Veículo</label>
+                <input type="text" id="edit-modelo" class="w-full bg-slate-100 p-4 rounded-xl font-medium text-slate-700 focus:outline-none">
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase">Nome do Cliente</label>
+                <input type="text" id="edit-cliente" class="w-full bg-slate-100 p-4 rounded-xl font-medium text-slate-700 focus:outline-none">
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button onclick="fecharModalEditar()" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-2xl transition uppercase">Cancelar</button>
+                <button onclick="atualizarVeiculo()" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl shadow transition uppercase">Atualizar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE SAÍDA / SERVIÇO REALIZADO -->
+    <div id="modal-saida" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white text-slate-800 w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4">
+            <h2 class="text-emerald-600 font-bold text-lg uppercase italic">Registrar Saída</h2>
+            <p class="text-xs text-slate-500">Informe o que foi realizado no veículo para salvar no histórico:</p>
+            
+            <input type="hidden" id="saida-id">
+
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase">Serviço / O que foi feito</label>
+                <textarea id="saida-servico" rows="3" placeholder="EX: REVISÃO DE BICOS INJETORES E TROCA DE FILTRO" class="w-full bg-slate-100 p-4 rounded-xl font-medium text-slate-700 focus:outline-none"></textarea>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button onclick="fecharModalSaida()" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-2xl transition uppercase">Cancelar</button>
+                <button onclick="confirmarSaida()" class="w-1/2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-2xl shadow transition uppercase">Liberar Saída</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MENU INFERIOR FIXO -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700 flex justify-around py-3 shadow-2xl">
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700 flex justify-around py-3 shadow-2xl z-40">
         <button onclick="mudarAba('entrada')" id="nav-entrada" class="flex flex-col items-center text-blue-400">
             <i class="fa-solid fa-plus text-lg"></i>
             <span class="text-[10px] font-bold mt-1">ENTRADA</span>
@@ -100,12 +152,10 @@
 
     <!-- SCRIPT DE CONEXÃO E LÓGICA -->
     <script>
-        // CONFIGURAÇÃO SUPABASE COM AS SUAS CREDENCIAIS
         const SUPABASE_URL = 'https://ywybppfkyekqlrndwhdn.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_R08_JT0lLER2lnRE-v4xSw_4Dgl8BDU';
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         let arquivoFoto = null;
 
         document.getElementById('input-foto').addEventListener('change', (e) => {
@@ -142,11 +192,9 @@
             }
 
             let fotoUrl = '';
-
-            // Upload da foto para o Supabase Storage, se houver
             if(arquivoFoto) {
                 const nomeArquivo = `${Date.now()}_${arquivoFoto.name}`;
-                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                const { error: uploadError } = await supabaseClient.storage
                     .from('fotos-veiculos')
                     .upload(nomeArquivo, arquivoFoto);
 
@@ -162,7 +210,6 @@
                 fotoUrl = publicURL.publicUrl;
             }
 
-            // Inserir registro na tabela
             const { error } = await supabaseClient
                 .from('patio_veiculos')
                 .insert([{ placa, modelo, cliente, foto_url: fotoUrl, status: 'PATIO' }]);
@@ -206,25 +253,78 @@
                             <p class="text-xs text-slate-500 font-bold">${v.modelo}</p>
                             <p class="text-[10px] text-blue-600 font-semibold">${v.cliente}</p>
                         </div>
-                        <button onclick="darSaida('${v.id}')" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow transition">
-                            SAÍDA
-                        </button>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="abrirModalEditar('${v.id}', '${v.placa}', '${v.modelo}', '${v.cliente}')" class="bg-blue-100 hover:bg-blue-200 text-blue-600 text-[10px] font-bold px-3 py-2 rounded-xl transition">EDITAR</button>
+                            <button onclick="abrirModalSaida('${v.id}')" class="bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-bold px-3 py-2 rounded-xl shadow transition">SAÍDA</button>
+                        </div>
                     </div>
                 `;
             });
         }
 
-        async function darSaida(id) {
-            if(!confirm('Confirmar a saída deste veículo do pátio?')) return;
+        function abrirModalEditar(id, placa, modelo, cliente) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-placa').value = placa;
+            document.getElementById('edit-modelo').value = modelo;
+            document.getElementById('edit-cliente').value = cliente;
+            document.getElementById('modal-editar').classList.remove('hidden');
+        }
+
+        function fecharModalEditar() {
+            document.getElementById('modal-editar').classList.add('hidden');
+        }
+
+        async function atualizarVeiculo() {
+            const id = document.getElementById('edit-id').value;
+            const placa = document.getElementById('edit-placa').value.toUpperCase();
+            const modelo = document.getElementById('edit-modelo').value.toUpperCase();
+            const cliente = document.getElementById('edit-cliente').value.toUpperCase();
 
             const { error } = await supabaseClient
                 .from('patio_veiculos')
-                .update({ status: 'SAIU', data_saida: new Date() })
+                .update({ placa, modelo, cliente })
                 .eq('id', id);
 
             if(error) {
-                alert('Erro ao registrar saída');
+                alert('Erro ao atualizar: ' + error.message);
             } else {
+                fecharModalEditar();
+                carregarPatio();
+            }
+        }
+
+        function abrirModalSaida(id) {
+            document.getElementById('saida-id').value = id;
+            document.getElementById('saida-servico').value = '';
+            document.getElementById('modal-saida').classList.remove('hidden');
+        }
+
+        function fecharModalSaida() {
+            document.getElementById('modal-saida').classList.add('hidden');
+        }
+
+        async function confirmarSaida() {
+            const id = document.getElementById('saida-id').value;
+            const servico = document.getElementById('saida-servico').value.toUpperCase();
+
+            if(!servico) {
+                alert('Informe o que foi feito no veículo antes de liberar a saída.');
+                return;
+            }
+
+            const { error } = await supabaseClient
+                .from('patio_veiculos')
+                .update({ 
+                    status: 'SAIU', 
+                    data_saida: new Date(),
+                    servico_realizado: servico 
+                })
+                .eq('id', id);
+
+            if(error) {
+                alert('Erro ao registrar saída: ' + error.message);
+            } else {
+                fecharModalSaida();
                 carregarPatio();
             }
         }
@@ -239,28 +339,30 @@
 
             const container = document.getElementById('lista-historico');
             container.innerHTML = '';
-               // Registrar Service Worker para permitir instalação
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-        .then(() => console.log('Service Worker registrado com sucesso!'))
-        .catch((err) => console.log('Erro ao registrar Service Worker:', err));
-}
+
             if(data) {
                 data.forEach(v => {
                     container.innerHTML += `
-                        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 flex justify-between items-center text-sm">
-                            <div>
-                                <span class="font-bold text-white">${v.placa}</span> - <span class="text-slate-400">${v.modelo}</span>
-                                <div class="text-[10px] text-slate-500">Cliente: ${v.cliente}</div>
+                        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-1 text-sm">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-white">${v.placa}</span>
+                                <span class="text-[10px] text-emerald-400 font-bold uppercase">LIBERADO</span>
                             </div>
-                            <span class="text-xs text-emerald-400 font-bold">LIBERADO</span>
+                            <div class="text-xs text-slate-400 font-medium">${v.modelo} - Cliente: ${v.cliente}</div>
+                            <div class="text-xs text-blue-300 bg-slate-900 p-2 rounded-xl mt-1 border border-slate-700">
+                                <strong>Serviço:</strong> ${v.servico_realizado || 'Não especificado'}
+                            </div>
                         </div>
                     `;
                 });
             }
         }
 
-        // Carregar contagem inicial ao abrir
+        // Registrar Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+
         carregarPatio();
     </script>
 </body>
