@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pátio Pro - Nuvem Supabase</title>
+    <title>Controle de Pátio - Nuvem Supabase</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS Client -->
@@ -11,17 +11,17 @@
     <!-- FontAwesome para Ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#dc2626">
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans pb-24">
 
     <!-- CABEÇALHO -->
-    <header class="bg-blue-600 p-6 rounded-b-3xl shadow-lg flex justify-between items-center">
+    <header class="bg-red-600 p-6 rounded-b-3xl shadow-lg flex justify-between items-center border-b-2 border-red-700">
         <div>
-            <h1 class="text-2xl font-black italic tracking-wider text-white">PÁTIO PRO</h1>
-            <p class="text-xs text-blue-200 font-medium">SUPABASE CLOUD</p>
+            <h1 class="text-2xl font-black italic tracking-wider text-white">CONTROLE DE PÁTIO</h1>
+            <p class="text-xs text-red-200 font-medium">SUPABASE CLOUD</p>
         </div>
-        <div class="bg-blue-800 px-4 py-2 rounded-full border border-blue-500 shadow-inner">
+        <div class="bg-red-900 px-4 py-2 rounded-full border border-red-500 shadow-inner">
             <span id="contador-patio" class="text-sm font-bold text-white">0 NO PÁTIO</span>
         </div>
     </header>
@@ -32,31 +32,31 @@
         <!-- ABA 1: ENTRADA -->
         <section id="aba-entrada" class="space-y-4">
             <div class="bg-white text-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
-                <h2 class="text-blue-600 font-bold text-lg uppercase italic">Nova Entrada</h2>
+                <h2 class="text-red-600 font-bold text-lg uppercase italic">Nova Entrada</h2>
                 
                 <div>
                     <label class="text-xs font-bold text-slate-500 uppercase">Placa</label>
-                    <input type="text" id="input-placa" placeholder="EX: EJD5D22" class="w-full bg-slate-100 p-4 rounded-xl font-bold uppercase text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="input-placa" placeholder="EX: EJD5D22" class="w-full bg-slate-100 p-4 rounded-xl font-bold uppercase text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500">
                 </div>
 
                 <div>
                     <label class="text-xs font-bold text-slate-500 uppercase">Modelo do Veículo</label>
-                    <input type="text" id="input-modelo" placeholder="EX: IVECO DAILY" class="w-full bg-slate-100 p-4 rounded-xl font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="input-modelo" placeholder="EX: IVECO DAILY" class="w-full bg-slate-100 p-4 rounded-xl font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500">
                 </div>
 
                 <div>
                     <label class="text-xs font-bold text-slate-500 uppercase">Nome do Cliente</label>
-                    <input type="text" id="input-cliente" placeholder="EX: TRANSPANTANAL" class="w-full bg-slate-100 p-4 rounded-xl font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="input-cliente" placeholder="EX: TRANSPANTANAL" class="w-full bg-slate-100 p-4 rounded-xl font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-500">
                 </div>
 
                 <div class="flex items-center gap-4 pt-2">
-                    <label class="border-2 border-dashed border-blue-300 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition w-1/3">
-                        <i class="fa-solid fa-camera text-2xl text-blue-500"></i>
-                        <span class="text-[10px] font-bold text-blue-600 mt-1">FOTO</span>
+                    <label class="border-2 border-dashed border-red-300 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-red-50 transition w-1/3">
+                        <i class="fa-solid fa-camera text-2xl text-red-500"></i>
+                        <span class="text-[10px] font-bold text-red-600 mt-1">FOTO</span>
                         <input type="file" id="input-foto" accept="image/*" class="hidden">
                     </label>
                     
-                    <button onclick="salvarVeiculo()" class="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition uppercase tracking-wider">
+                    <button onclick="salvarVeiculo()" class="w-2/3 bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg transition uppercase tracking-wider">
                         Salvar
                     </button>
                 </div>
@@ -86,7 +86,7 @@
     <div id="modal-editar" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white text-slate-800 w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4">
             <div class="flex justify-between items-center">
-                <h2 class="text-blue-600 font-bold text-lg uppercase italic">Editar Ordem</h2>
+                <h2 class="text-red-600 font-bold text-lg uppercase italic">Editar Ordem</h2>
                 <button onclick="fecharModalEditar()" class="text-slate-400 hover:text-slate-700 text-xl font-bold">&times;</button>
             </div>
             
@@ -109,7 +109,7 @@
 
             <div class="flex gap-3 pt-2">
                 <button onclick="fecharModalEditar()" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-2xl transition uppercase">Cancelar</button>
-                <button onclick="atualizarVeiculo()" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl shadow transition uppercase">Atualizar</button>
+                <button onclick="atualizarVeiculo()" class="w-1/2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-2xl shadow transition uppercase">Atualizar</button>
             </div>
         </div>
     </div>
@@ -136,12 +136,12 @@
 
     <!-- MENU INFERIOR FIXO -->
     <nav class="fixed bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700 flex justify-around py-3 shadow-2xl z-40">
-        <button onclick="mudarAba('entrada')" id="nav-entrada" class="flex flex-col items-center text-blue-400">
+        <button onclick="mudarAba('entrada')" id="nav-entrada" class="flex flex-col items-center text-red-500">
             <i class="fa-solid fa-plus text-lg"></i>
             <span class="text-[10px] font-bold mt-1">ENTRADA</span>
         </button>
         <button onclick="mudarAba('patio')" id="nav-patio" class="flex flex-col items-center text-slate-400">
-            <i class="fa-solid fa-car text-lg"></i>
+            <i class="fa-solid fa-truck text-lg"></i>
             <span class="text-[10px] font-bold mt-1">PÁTIO</span>
         </button>
         <button onclick="mudarAba('historico')" id="nav-historico" class="flex flex-col items-center text-slate-400">
@@ -175,7 +175,7 @@
             document.getElementById('nav-historico').className = "flex flex-col items-center text-slate-400";
 
             document.getElementById(`aba-${aba}`).classList.remove('hidden');
-            document.getElementById(`nav-${aba}`).className = "flex flex-col items-center text-blue-400";
+            document.getElementById(`nav-${aba}`).className = "flex flex-col items-center text-red-500";
 
             if(aba === 'patio') carregarPatio();
             if(aba === 'historico') carregarHistorico();
@@ -193,21 +193,28 @@
 
             let fotoUrl = '';
             if(arquivoFoto) {
-                const nomeArquivo = `${Date.now()}_${arquivoFoto.name}`;
-                const { error: uploadError } = await supabaseClient.storage
+                // Gera um nome limpo para evitar problemas com caracteres especiais/espaços
+                const extensao = arquivoFoto.name.split('.').pop();
+                const nomeLimpo = `${Date.now()}.${extensao}`;
+
+                const { data: uploadData, error: uploadError } = await supabaseClient.storage
                     .from('fotos-veiculos')
-                    .upload(nomeArquivo, arquivoFoto);
+                    .upload(nomeLimpo, arquivoFoto, {
+                        cacheControl: '3600',
+                        upsert: true
+                    });
 
                 if(uploadError) {
-                    alert('Erro ao enviar foto: ' + uploadError.message);
+                    alert('Erro ao enviar foto para o Storage: ' + uploadError.message);
+                    console.error('Erro no Upload:', uploadError);
                     return;
                 }
 
-                const { data: publicURL } = supabaseClient.storage
+                const { data: publicData } = supabaseClient.storage
                     .from('fotos-veiculos')
-                    .getPublicUrl(nomeArquivo);
+                    .getPublicUrl(nomeLimpo);
                 
-                fotoUrl = publicURL.publicUrl;
+                fotoUrl = publicData.publicUrl;
             }
 
             const { error } = await supabaseClient
@@ -215,7 +222,8 @@
                 .insert([{ placa, modelo, cliente, foto_url: fotoUrl, status: 'PATIO' }]);
 
             if(error) {
-                alert('Erro ao salvar: ' + error.message);
+                alert('Erro ao salvar no banco: ' + error.message);
+                console.error('Erro no Banco:', error);
             } else {
                 alert('Veículo cadastrado com sucesso!');
                 document.getElementById('input-placa').value = '';
@@ -245,16 +253,17 @@
             container.innerHTML = '';
 
             data.forEach(v => {
+                const imgSrc = v.foto_url ? v.foto_url : 'https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto';
                 container.innerHTML += `
                     <div class="bg-white text-slate-800 p-4 rounded-3xl shadow-xl flex items-center justify-between gap-3">
-                        <img src="${v.foto_url || 'https://via.placeholder.com/150'}" class="w-16 h-16 rounded-2xl object-cover border">
+                        <img src="${imgSrc}" class="w-16 h-16 rounded-2xl object-cover border">
                         <div class="flex-1">
                             <h3 class="font-black italic text-slate-900">${v.placa}</h3>
                             <p class="text-xs text-slate-500 font-bold">${v.modelo}</p>
-                            <p class="text-[10px] text-blue-600 font-semibold">${v.cliente}</p>
+                            <p class="text-[10px] text-red-600 font-semibold">${v.cliente}</p>
                         </div>
                         <div class="flex flex-col gap-2">
-                            <button onclick="abrirModalEditar('${v.id}', '${v.placa}', '${v.modelo}', '${v.cliente}')" class="bg-blue-100 hover:bg-blue-200 text-blue-600 text-[10px] font-bold px-3 py-2 rounded-xl transition">EDITAR</button>
+                            <button onclick="abrirModalEditar('${v.id}', '${v.placa}', '${v.modelo}', '${v.cliente}')" class="bg-red-100 hover:bg-red-200 text-red-600 text-[10px] font-bold px-3 py-2 rounded-xl transition">EDITAR</button>
                             <button onclick="abrirModalSaida('${v.id}')" class="bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-bold px-3 py-2 rounded-xl shadow transition">SAÍDA</button>
                         </div>
                     </div>
@@ -349,7 +358,7 @@
                                 <span class="text-[10px] text-emerald-400 font-bold uppercase">LIBERADO</span>
                             </div>
                             <div class="text-xs text-slate-400 font-medium">${v.modelo} - Cliente: ${v.cliente}</div>
-                            <div class="text-xs text-blue-300 bg-slate-900 p-2 rounded-xl mt-1 border border-slate-700">
+                            <div class="text-xs text-red-300 bg-slate-900 p-2 rounded-xl mt-1 border border-slate-700">
                                 <strong>Serviço:</strong> ${v.servico_realizado || 'Não especificado'}
                             </div>
                         </div>
@@ -358,7 +367,6 @@
             }
         }
 
-        // Registrar Service Worker para PWA
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(() => {});
         }
