@@ -1,353 +1,260 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alcantara's Diesel O.S.</title>
-    
-    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Alcantaras%20Diesel%22%2C%22short_name%22%3A%22DieselOS%22%2C%22start_url%22%3A%22%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%23d32f2f%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fcdn-icons-png.flaticon.com%2F512%2F2554%2F2554903.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
-    <meta name="theme-color" content="#d32f2f">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2554%2F2554903.png">
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; padding: 15px; background: #eceff1; margin: 0; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; margin: auto; }
-        h2 { color: #d32f2f; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #d32f2f; padding-bottom: 10px; }
-        label { font-weight: bold; display: block; margin-top: 15px; color: #333; }
-        input, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        
-        .item-linha { display: flex; gap: 8px; margin-top: 10px; align-items: center; background: #fdfdfd; padding: 5px; border-radius: 8px; border: 1px solid #eee; }
-        .item-desc { flex: 3; }
-        .item-val { flex: 1.5; }
-        .btn-del-item { background: #d32f2f; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 45px; }
-        .btn-add-item { background: #444; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 15px; font-weight: bold; font-size: 14px; }
-
-        button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-pdf { background: #2e7d32; color: white; }
-        .btn-new { background: #1976d2; color: white; }
-        .btn-photo { background: #f0f0f0; color: #333; border: 1px solid #ccc; font-size: 14px; padding: 10px; flex: 1; }
-        .btn-remove-photo { background: #ffcdd2; color: #c62828; font-size: 12px; padding: 5px; border: 1px solid #ef9a9a; margin-bottom: 10px; display: none; }
-        .btn-config { background: #546e7a; color: white; margin-top: 20px; font-size: 14px; padding: 10px; }
-        #preview-container { text-align: center; position: relative; }
-        #preview-img { width: 120px; height: 120px; object-fit: cover; margin: 10px auto; display: none; border-radius: 8px; border: 2px solid #d32f2f; }
-        
-        .historico { margin-top: 30px; border-top: 2px solid #ccc; padding-top: 10px; }
-        .item-historico { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 5px solid #d32f2f; }
-        .item-info { display: flex; justify-content: space-between; padding: 5px; align-items: center; }
-        .item-actions { display: flex; gap: 5px; padding: 5px; }
-        .btn-mini { padding: 8px; font-size: 12px; flex: 1; border-radius: 5px; color: white; border: none; cursor: pointer; }
-        
-        #status-edit { background: #fff3e0; color: #e65100; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 10px; display: none; border: 1px solid #ffb74d; }
-        #aba-config { display: none; padding: 15px; background: #f0f0f0; border-radius: 8px; margin-top: 15px; }
-        #bloqueio-licenca { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; color: white; text-align: center; padding-top: 50px; }
-        .lock-card { background: #fff; color: #333; margin: 20px; padding: 30px; border-radius: 15px; }
-    </style>
+    <title>Pátio Pro - Nuvem Supabase</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- FontAwesome para Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100 font-sans pb-24">
 
-<div id="bloqueio-licenca">
-    <div class="lock-card">
-        <h2 style="color:red">LICENÇA EXPIRADA</h2>
-        <p>Senha 0907 para renovar:</p>
-        <input type="password" id="senha-renova" style="text-align:center; font-size:24px">
-        <button class="btn-pdf" onclick="verificarSenha()">RENOVAR</button>
-    </div>
-</div>
+    <!-- CABEÇALHO -->
+    <header class="bg-blue-600 p-6 rounded-b-3xl shadow-lg flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-black italic tracking-wider text-white">PÁTIO PRO</h1>
+            <p class="text-xs text-blue-200 font-medium">SUPABASE CLOUD</p>
+        </div>
+        <div class="bg-blue-800 px-4 py-2 rounded-full border border-blue-500 shadow-inner">
+            <span id="contador-patio" class="text-sm font-bold text-white">0 NO PÁTIO</span>
+        </div>
+    </header>
 
-<div class="card">
-    <h2 id="titulo-oficina">Alcantara's Diesel</h2>
-    <div id="status-edit">⚠️ MODO EDIÇÃO ATIVADO</div>
+    <!-- CONTAINER PRINCIPAL / ABAS -->
+    <main class="max-w-md mx-auto p-4 mt-2">
 
-    <label>Cliente:</label>
-    <input type="text" id="cliente" placeholder="Nome do Cliente">
+        <!-- ABA 1: ENTRADA -->
+        <section id="aba-entrada" class="space-y-4">
+            <div class="bg-white text-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+                <h2 class="text-blue-600 font-bold text-lg uppercase italic">Nova Entrada</h2>
+                
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase">Placa</label>
+                    <input type="text" id="input-placa" placeholder="EX: EJD5D22" class="w-full bg-slate-100 p-4 rounded-xl font-bold uppercase text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
 
-    <div style="display:flex; gap:10px">
-        <div style="flex:1"><label>Modelo:</label><input type="text" id="modelo" placeholder="Scania"></div>
-        <div style="flex:1"><label>Placa:</label><input type="text" id="placa" placeholder="ABC-1234"></div>
-    </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase">Modelo do Veículo</label>
+                    <input type="text" id="input-modelo" placeholder="EX: IVECO DAILY" class="w-full bg-slate-100 p-4 rounded-xl font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
 
-    <label>KM Atual:</label>
-    <input type="number" id="km" placeholder="500000">
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase">Nome do Cliente</label>
+                    <input type="text" id="input-cliente" placeholder="EX: TRANSPANTANAL" class="w-full bg-slate-100 p-4 rounded-xl font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
 
-    <label>Serviço Executado:</label>
-    <textarea id="servico_exec" rows="2" placeholder="O que foi feito..."></textarea>
+                <div class="flex items-center gap-4 pt-2">
+                    <label class="border-2 border-dashed border-blue-300 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition w-1/3">
+                        <i class="fa-solid fa-camera text-2xl text-blue-500"></i>
+                        <span class="text-[10px] font-bold text-blue-600 mt-1">FOTO</span>
+                        <input type="file" id="input-foto" accept="image/*" class="hidden">
+                    </label>
+                    
+                    <button onclick="salvarVeiculo()" class="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition uppercase tracking-wider">
+                        Salvar
+                    </button>
+                </div>
+                <div id="preview-foto-nome" class="text-xs text-slate-400 italic">Nenhuma foto selecionada</div>
+            </div>
+        </section>
 
-    <label>Orçamento Detalhado:</label>
-    <div id="lista-itens-orcamento"></div>
-    <button type="button" class="btn-add-item" id="btn-add">+ ADICIONAR ITEM / VALOR</button>
-    
-    <label>Valor Total (R$):</label>
-    <input type="text" id="total" value="0.00" readonly style="background: #f1f8e9; font-weight: bold; color: #2e7d32; border: 1px solid #2e7d32; text-align: center;">
+        <!-- ABA 2: PÁTIO -->
+        <section id="aba-patio" class="hidden space-y-4">
+            <h2 class="text-lg font-bold text-slate-300 px-2">Veículos no Pátio</h2>
+            <div id="lista-patio" class="space-y-4">
+                <!-- Os cards entram dinamicamente via JS -->
+            </div>
+        </section>
 
-    <label>Fotos:</label>
-    <div style="display:flex; gap:10px">
-        <button class="btn-photo" onclick="document.getElementById('input-camera').click()">📸 Câmera</button>
-        <button class="btn-photo" onclick="document.getElementById('input-galeria').click()">🖼️ Galeria</button>
-    </div>
-    <input type="file" id="input-camera" accept="image/*" capture="camera" style="display:none" onchange="processarFoto(this)">
-    <input type="file" id="input-galeria" accept="image/*" style="display:none" onchange="processarFoto(this)">
-    
-    <div id="preview-container">
-        <img id="preview-img">
-        <button type="button" id="btn-del-photo" class="btn-remove-photo" onclick="removerFoto()">❌ REMOVER FOTO</button>
-    </div>
+        <!-- ABA 3: HISTÓRICO -->
+        <section id="aba-historico" class="hidden space-y-4">
+            <h2 class="text-lg font-bold text-slate-300 px-2">Histórico de Saídas</h2>
+            <div id="lista-historico" class="space-y-3">
+                <!-- Histórico dinâmico -->
+            </div>
+        </section>
 
-    <button class="btn-pdf" onclick="gerarPDF(true)">SALVAR E GERAR PDF</button>
-    <button class="btn-new" onclick="novaOS()">LIMPAR / NOVA O.S.</button>
-    
-    <button class="btn-config" onclick="toggleConfig()">⚙️ CONFIGURAÇÕES</button>
+    </main>
 
-    <div id="aba-config">
-        <div id="info-dias-licenca" style="text-align:center; font-weight:bold; color:#d32f2f; margin-bottom:10px"></div>
-        <label>Nome da Oficina:</label>
-        <input type="text" id="nome-oficina-input">
-        <button class="btn-pdf" onclick="salvarConfig()">SALVAR NOME</button>
-        <button style="background:#f57c00; color:white" onclick="exportarBackup()">BACKUP</button>
-    </div>
+    <!-- MENU INFERIOR FIXO -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700 flex justify-around py-3 shadow-2xl">
+        <button onclick="mudarAba('entrada')" id="nav-entrada" class="flex flex-col items-center text-blue-400">
+            <i class="fa-solid fa-plus text-lg"></i>
+            <span class="text-[10px] font-bold mt-1">ENTRADA</span>
+        </button>
+        <button onclick="mudarAba('patio')" id="nav-patio" class="flex flex-col items-center text-slate-400">
+            <i class="fa-solid fa-car text-lg"></i>
+            <span class="text-[10px] font-bold mt-1">PÁTIO</span>
+        </button>
+        <button onclick="mudarAba('historico')" id="nav-historico" class="flex flex-col items-center text-slate-400">
+            <i class="fa-solid fa-clipboard-list text-lg"></i>
+            <span class="text-[10px] font-bold mt-1">HISTÓRICO</span>
+        </button>
+    </nav>
 
-    <div class="historico">
-        <h3>Histórico Recente</h3>
-        <div id="lista-historico"></div>
-    </div>
-</div>
+    <!-- SCRIPT DE CONEXÃO E LÓGICA -->
+    <script>
+        // CONFIGURAÇÃO SUPABASE (Substitua pelas suas chaves do projeto)
+        const SUPABASE_URL = 'SUA_URL_DO_SUPABASE';
+        const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANON_DO_SUPABASE';
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-<script>
-    let fotoBase64 = "";
-    let editandoIndex = -1;
+        let arquivoFoto = null;
 
-    window.onload = () => {
-        verificarLicenca();
-        const configSalva = localStorage.getItem('config_oficina');
-        if(configSalva) {
-            document.getElementById('titulo-oficina').innerText = configSalva;
-            document.getElementById('nome-oficina-input').value = configSalva;
-        }
-        document.getElementById('btn-add').addEventListener('click', () => adicionarLinhaItem());
-        adicionarLinhaItem();
-        carregarHistorico();
-    };
-
-    function adicionarLinhaItem(desc = "", val = "") {
-        const container = document.getElementById('lista-itens-orcamento');
-        const div = document.createElement('div');
-        div.className = 'item-linha';
-        div.innerHTML = `
-            <input type="text" class="item-desc" placeholder="Peça" value="${desc}">
-            <input type="number" class="item-val" placeholder="0.00" value="${val}" oninput="calcularTotal()">
-            <button class="btn-del-item" onclick="this.parentElement.remove(); calcularTotal();">X</button>
-        `;
-        container.appendChild(div);
-    }
-
-    function calcularTotal() {
-        let soma = 0;
-        document.querySelectorAll('.item-val').forEach(v => {
-            if(v.value) soma += parseFloat(v.value);
-        });
-        document.getElementById('total').value = soma.toFixed(2);
-    }
-
-    function coletarItens() {
-        let itens = [];
-        document.querySelectorAll('.item-linha').forEach(l => {
-            const d = l.querySelector('.item-desc').value;
-            const v = l.querySelector('.item-val').value;
-            if(d.trim() !== "") itens.push({ desc: d, val: v || "0.00" });
-        });
-        return itens;
-    }
-
-    function removerFoto() {
-        fotoBase64 = "";
-        document.getElementById('preview-img').src = "";
-        document.getElementById('preview-img').style.display = "none";
-        document.getElementById('btn-del-photo').style.display = "none";
-        document.getElementById('input-camera').value = "";
-        document.getElementById('input-galeria').value = "";
-    }
-
-    function verificarLicenca() {
-        const dataInicio = localStorage.getItem('app_install_date') || new Date().getTime();
-        localStorage.setItem('app_install_date', dataInicio);
-        const diasRestantes = 30 - Math.floor((new Date().getTime() - dataInicio) / (1000 * 60 * 60 * 24));
-        document.getElementById('info-dias-licenca').innerText = `Licença: ${diasRestantes} dias`;
-        if (diasRestantes <= 0) document.getElementById('bloqueio-licenca').style.display = 'block';
-    }
-
-    function verificarSenha() {
-        if (document.getElementById('senha-renova').value === "0907") {
-            localStorage.setItem('app_install_date', new Date().getTime());
-            location.reload();
-        }
-    }
-
-    function toggleConfig() {
-        const aba = document.getElementById('aba-config');
-        aba.style.display = aba.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function salvarConfig() {
-        localStorage.setItem('config_oficina', document.getElementById('nome-oficina-input').value);
-        location.reload();
-    }
-
-    function processarFoto(input) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.src = e.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = 400; canvas.height = img.height * (400 / img.width);
-                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                fotoBase64 = canvas.toDataURL('image/jpeg', 0.6);
-                const pImg = document.getElementById('preview-img');
-                pImg.src = fotoBase64;
-                pImg.style.display = "block";
-                document.getElementById('btn-del-photo').style.display = "inline-block";
+        document.getElementById('input-foto').addEventListener('change', (e) => {
+            arquivoFoto = e.target.files[0];
+            if(arquivoFoto) {
+                document.getElementById('preview-foto-nome').innerText = "Foto selecionada: " + arquivoFoto.name;
             }
-        };
-        if(input.files[0]) reader.readAsDataURL(input.files[0]);
-    }
+        });
 
-    function carregarHistorico() {
-        const h = JSON.parse(localStorage.getItem('alcantara_history') || "[]");
-        const lista = document.getElementById('lista-historico');
-        lista.innerHTML = "";
-        h.forEach((item, i) => {
-            lista.innerHTML += `
-                <div class="item-historico">
-                    <div class="item-info"><span><b>${item.placa}</b> - ${item.cliente}</span><small>${item.data}</small></div>
-                    <div class="item-actions">
-                        <button class="btn-mini" style="background:#1976d2" onclick="rebaixarPDF(${i})">PDF</button>
-                        <button class="btn-mini" style="background:#f57c00" onclick="editarOS(${i})">EDITAR</button>
-                        <button class="btn-mini" style="background:#d32f2f" onclick="excluirOS(${i})">X</button>
+        function mudarAba(aba) {
+            document.getElementById('aba-entrada').classList.add('hidden');
+            document.getElementById('aba-patio').classList.add('hidden');
+            document.getElementById('aba-historico').classList.add('hidden');
+
+            document.getElementById('nav-entrada').className = "flex flex-col items-center text-slate-400";
+            document.getElementById('nav-patio').className = "flex flex-col items-center text-slate-400";
+            document.getElementById('nav-historico').className = "flex flex-col items-center text-slate-400";
+
+            document.getElementById(`aba-${aba}`).classList.remove('hidden');
+            document.getElementById(`nav-${aba}`).className = "flex flex-col items-center text-blue-400";
+
+            if(aba === 'patio') carregarPatio();
+            if(aba === 'historico') carregarHistorico();
+        }
+
+        async function salvarVeiculo() {
+            const placa = document.getElementById('input-placa').value.toUpperCase();
+            const modelo = document.getElementById('input-modelo').value.toUpperCase();
+            const cliente = document.getElementById('input-cliente').value.toUpperCase();
+
+            if(!placa || !modelo || !cliente) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+
+            let fotoUrl = '';
+
+            // Upload da foto para o Supabase Storage, se houver
+            if(arquivoFoto) {
+                const nomeArquivo = `${Date.now()}_${arquivoFoto.name}`;
+                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                    .from('fotos-veiculos')
+                    .upload(nomeArquivo, arquivoFoto);
+
+                if(uploadError) {
+                    alert('Erro ao enviar foto: ' + uploadError.message);
+                    return;
+                }
+
+                const { data: publicURL } = supabaseClient.storage
+                    .from('fotos-veiculos')
+                    .getPublicUrl(nomeArquivo);
+                
+                fotoUrl = publicURL.publicUrl;
+            }
+
+            // Inserir registro na tabela
+            const { error } = await supabaseClient
+                .from('patio_veiculos')
+                .insert([{ placa, modelo, cliente, foto_url: fotoUrl, status: 'PATIO' }]);
+
+            if(error) {
+                alert('Erro ao salvar: ' + error.message);
+            } else {
+                alert('Veículo cadastrado com sucesso!');
+                document.getElementById('input-placa').value = '';
+                document.getElementById('input-modelo').value = '';
+                document.getElementById('input-cliente').value = '';
+                document.getElementById('input-foto').value = '';
+                document.getElementById('preview-foto-nome').innerText = 'Nenhuma foto selecionada';
+                arquivoFoto = null;
+                mudarAba('patio');
+            }
+        }
+
+        async function carregarPatio() {
+            const { data, error } = await supabaseClient
+                .from('patio_veiculos')
+                .select('*')
+                .eq('status', 'PATIO')
+                .order('data_entrada', { ascending: false });
+
+            if(error) {
+                console.error(error);
+                return;
+            }
+
+            document.getElementById('contador-patio').innerText = `${data.length} NO PÁTIO`;
+            const container = document.getElementById('lista-patio');
+            container.innerHTML = '';
+
+            data.forEach(v => {
+                container.innerHTML += `
+                    <div class="bg-white text-slate-800 p-4 rounded-3xl shadow-xl flex items-center justify-between gap-3">
+                        <img src="${v.foto_url || 'https://via.placeholder.com/150'}" class="w-16 h-16 rounded-2xl object-cover border">
+                        <div class="flex-1">
+                            <h3 class="font-black italic text-slate-900">${v.placa}</h3>
+                            <p class="text-xs text-slate-500 font-bold">${v.modelo}</p>
+                            <p class="text-[10px] text-blue-600 font-semibold">${v.cliente}</p>
+                        </div>
+                        <button onclick="darSaida('${v.id}')" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow transition">
+                            SAÍDA
+                        </button>
                     </div>
-                </div>`;
-        });
-    }
-
-    function editarOS(i) {
-        const d = JSON.parse(localStorage.getItem('alcantara_history'))[i];
-        document.getElementById('cliente').value = d.cliente;
-        document.getElementById('placa').value = d.placa;
-        document.getElementById('modelo').value = d.modelo;
-        document.getElementById('km').value = d.km;
-        document.getElementById('servico_exec').value = d.servico_exec;
-        document.getElementById('lista-itens-orcamento').innerHTML = "";
-        d.itens.forEach(it => adicionarLinhaItem(it.desc, it.val));
-        calcularTotal();
-        fotoBase64 = d.foto;
-        const pImg = document.getElementById('preview-img');
-        pImg.src = fotoBase64 || "";
-        pImg.style.display = fotoBase64 ? "block" : "none";
-        document.getElementById('btn-del-photo').style.display = fotoBase64 ? "inline-block" : "none";
-        editandoIndex = i;
-        document.getElementById('status-edit').style.display = 'block';
-        window.scrollTo(0,0);
-    }
-
-    function excluirOS(i) {
-        if(confirm("Excluir registro permanentemente?")) {
-            let h = JSON.parse(localStorage.getItem('alcantara_history'));
-            h.splice(i, 1);
-            localStorage.setItem('alcantara_history', JSON.stringify(h));
-            carregarHistorico();
-        }
-    }
-
-    function novaOS() { if(confirm("Limpar tudo para nova O.S?")) location.reload(); }
-
-    function gerarPDF(salvar = false) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const d = {
-            cliente: document.getElementById('cliente').value,
-            placa: document.getElementById('placa').value,
-            modelo: document.getElementById('modelo').value,
-            km: document.getElementById('km').value,
-            servico_exec: document.getElementById('servico_exec').value,
-            itens: coletarItens(),
-            total: document.getElementById('total').value,
-            foto: fotoBase64,
-            data: new Date().toLocaleDateString('pt-BR')
-        };
-
-        if(salvar) {
-            let h = JSON.parse(localStorage.getItem('alcantara_history') || "[]");
-            if(editandoIndex > -1) h[editandoIndex] = d; else h.unshift(d);
-            localStorage.setItem('alcantara_history', JSON.stringify(h));
-            editandoIndex = -1;
-            carregarHistorico();
-            document.getElementById('status-edit').style.display = 'none';
+                `;
+            });
         }
 
-        const oficina = localStorage.getItem('config_oficina') || "Alcantara's Diesel";
-        doc.setFillColor(211, 47, 47); doc.rect(0, 0, 210, 40, 'F');
-        doc.setTextColor(255); doc.setFontSize(20); doc.text(oficina.toUpperCase(), 15, 25);
-        if (d.foto) doc.addImage(d.foto, 'JPEG', 155, 5, 40, 30);
-        
-        doc.setTextColor(0); doc.setFontSize(12);
-        doc.text(`CLIENTE: ${d.cliente}`, 15, 50);
-        doc.text(`VEÍCULO: ${d.modelo} | PLACA: ${d.placa} | KM: ${d.km}`, 15, 58);
-        doc.line(15, 62, 195, 62);
-        
-        doc.setFont("helvetica", "bold"); doc.text("SERVIÇO EXECUTADO:", 15, 72);
-        doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-        doc.text(doc.splitTextToSize(d.servico_exec, 180), 15, 78);
+        async function darSaida(id) {
+            if(!confirm('Confirmar a saída deste veículo do pátio?')) return;
 
-        doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("ORÇAMENTO:", 15, 105);
-        let y = 112;
-        doc.setFontSize(10); doc.setFont("helvetica", "normal");
-        d.itens.forEach(it => {
-            doc.text(`${it.desc}`, 15, y);
-            doc.text(`R$ ${it.val}`, 170, y);
-            y += 7;
-        });
-        
-        doc.line(15, y, 195, y);
-        doc.setFontSize(14); doc.setTextColor(46, 125, 50);
-        doc.text(`TOTAL GERAL: R$ ${d.total}`, 15, y + 10);
-        doc.save(`OS_${d.placa}.pdf`);
-    }
+            const { error } = await supabaseClient
+                .from('patio_veiculos')
+                .update({ status: 'SAIU', data_saida: new Date() })
+                .eq('id', id);
 
-    function rebaixarPDF(i) {
-        const d = JSON.parse(localStorage.getItem('alcantara_history'))[i];
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const oficina = localStorage.getItem('config_oficina') || "Alcantara's Diesel";
-        doc.setFillColor(211, 47, 47); doc.rect(0, 0, 210, 40, 'F');
-        doc.setTextColor(255); doc.setFontSize(20); doc.text(oficina.toUpperCase(), 15, 25);
-        if (d.foto) doc.addImage(d.foto, 'JPEG', 155, 5, 40, 30);
-        doc.setTextColor(0); doc.setFontSize(12);
-        doc.text(`CLIENTE: ${d.cliente}`, 15, 50);
-        doc.text(`VEÍCULO: ${d.modelo} | PLACA: ${d.placa} | KM: ${d.km}`, 15, 58);
-        doc.line(15, 62, 195, 62);
-        doc.setFontSize(12); doc.text("SERVIÇO EXECUTADO:", 15, 72);
-        doc.setFontSize(10); doc.text(doc.splitTextToSize(d.servico_exec, 180), 15, 78);
-        let y = 112;
-        d.itens.forEach(it => {
-            doc.text(`${it.desc}`, 15, y);
-            doc.text(`R$ ${it.val}`, 170, y);
-            y += 7;
-        });
-        doc.line(15, y, 195, y);
-        doc.setFontSize(14); doc.setTextColor(46, 125, 50);
-        doc.text(`TOTAL GERAL: R$ ${d.total}`, 15, y + 10);
-        doc.save(`OS_${d.placa}.pdf`);
-    }
+            if(error) {
+                alert('Erro ao registrar saída');
+            } else {
+                carregarPatio();
+            }
+        }
 
-    function exportarBackup() {
-        const b = new Blob([localStorage.getItem('alcantara_history')], {type: "application/json"});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `backup.json`; a.click();
-    }
+        async function carregarHistorico() {
+            const { data, error } = await supabaseClient
+                .from('patio_veiculos')
+                .select('*')
+                .eq('status', 'SAIU')
+                .order('data_saida', { ascending: false })
+                .limit(20);
 
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('data:text/javascript;base64,' + btoa('self.addEventListener("fetch", (e) => {});'));
-    }
-</script>
+            const container = document.getElementById('lista-historico');
+            container.innerHTML = '';
+
+            if(data) {
+                data.forEach(v => {
+                    container.innerHTML += `
+                        <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 flex justify-between items-center text-sm">
+                            <div>
+                                <span class="font-bold text-white">${v.placa}</span> - <span class="text-slate-400">${v.modelo}</span>
+                                <div class="text-[10px] text-slate-500">Cliente: ${v.cliente}</div>
+                            </div>
+                            <span class="text-xs text-emerald-400 font-bold">LIBERADO</span>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // Carregar contagem inicial ao abrir
+        carregarPatio();
+    </script>
 </body>
 </html>
