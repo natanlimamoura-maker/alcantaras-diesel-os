@@ -12,207 +12,267 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#dc2626">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans pb-24">
+<body class="bg-slate-950 text-slate-100 font-sans pb-24 min-h-screen">
 
     <!-- CABEÇALHO -->
-    <header class="bg-red-600 p-6 rounded-b-3xl shadow-lg flex justify-between items-center border-b-2 border-red-700">
+    <header class="bg-gradient-to-r from-red-700 to-red-600 p-5 rounded-b-3xl shadow-2xl flex justify-between items-center border-b border-red-500/30 sticky top-0 z-30">
         <div>
-            <h1 class="text-2xl font-black italic tracking-wider text-white">CONTROLE DE PÁTIO</h1>
-            <p class="text-xs text-red-200 font-medium">SUPABASE CLOUD</p>
+            <h1 class="text-xl font-black italic tracking-wider text-white flex items-center gap-2">
+                <i class="fa-solid fa-truck-monster text-red-200"></i> CONTROLE DE PÁTIO
+            </h1>
+            <p class="text-[10px] text-red-100/80 uppercase font-semibold tracking-widest">Gestão da Oficina</p>
         </div>
-        <div class="bg-red-900 px-4 py-2 rounded-full border border-red-500 shadow-inner">
-            <span id="contador-patio" class="text-sm font-bold text-white">0 NO PÁTIO</span>
+        <div class="bg-red-950/70 px-4 py-1.5 rounded-full border border-red-400/30 shadow-inner backdrop-blur-sm">
+            <span id="contador-patio" class="text-xs font-black text-white tracking-wide">0 NO PÁTIO</span>
         </div>
     </header>
 
-    <!-- CONTAINER PRINCIPAL / ABAS -->
-    <main class="max-w-md mx-auto p-4 mt-2">
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="max-w-md mx-auto p-4 space-y-4">
 
         <!-- ABA 1: ENTRADA -->
         <section id="aba-entrada" class="space-y-4">
-            <div class="bg-slate-800 text-white p-6 rounded-3xl shadow-xl space-y-4 border border-slate-700">
-                <h2 class="text-red-500 font-bold text-lg uppercase italic">Nova Entrada</h2>
+            <div class="bg-slate-900/90 backdrop-blur-md text-white p-6 rounded-3xl shadow-2xl space-y-5 border border-slate-800">
+                <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+                    <h2 class="text-red-500 font-black text-base uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle"></i> Nova Entrada
+                    </h2>
+                    <span class="text-[10px] text-slate-400 font-medium">Preencha os dados</span>
+                </div>
                 
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase">Placa</label>
-                    <input type="text" id="input-placa" placeholder="EX: EJD5D22" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-bold uppercase text-white focus:outline-none focus:ring-2 focus:ring-red-500">
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide block mb-1">Placa do Veículo</label>
+                        <input type="text" id="input-placa" placeholder="EX: ABC1D23" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-2xl font-black uppercase text-red-400 placeholder:slate-600 text-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide block mb-1">Modelo / Veículo</label>
+                        <input type="text" id="input-modelo" placeholder="EX: IVECO DAILY 55C17" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-2xl font-semibold text-white placeholder:slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+                    </div>
+
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide block mb-1">Cliente / Proprietário</label>
+                        <input type="text" id="input-cliente" placeholder="EX: ANTHONY LOGÍSTICA" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-2xl font-semibold text-white placeholder:slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+                    </div>
                 </div>
 
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase">Modelo do Veículo</label>
-                    <input type="text" id="input-modelo" placeholder="EX: IVECO DAILY" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-medium text-white focus:outline-none focus:ring-2 focus:ring-red-500">
+                <!-- ANEXAR FOTO -->
+                <div class="pt-2 border-t border-slate-800">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide block mb-2">Foto do Veículo</label>
+                    <div class="grid grid-cols-2 gap-3 mb-2">
+                        <label class="border border-slate-700 bg-slate-950/60 rounded-2xl p-3 flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800 hover:border-red-500 transition active:scale-95">
+                            <i class="fa-solid fa-camera text-red-500 text-base"></i>
+                            <span class="text-xs font-bold text-slate-200">Tirar Foto</span>
+                            <input type="file" id="input-foto-camera" accept="image/*" capture="environment" class="hidden">
+                        </label>
+                        <label class="border border-slate-700 bg-slate-950/60 rounded-2xl p-3 flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800 hover:border-red-500 transition active:scale-95">
+                            <i class="fa-solid fa-images text-red-500 text-base"></i>
+                            <span class="text-xs font-bold text-slate-200">Galeria</span>
+                            <input type="file" id="input-foto-galeria" accept="image/*" class="hidden">
+                        </label>
+                    </div>
+                    <div id="preview-foto-nome" class="text-[11px] text-slate-400 italic text-center min-h-[16px]">Nenhuma foto selecionada</div>
                 </div>
 
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase">Nome do Cliente</label>
-                    <input type="text" id="input-cliente" placeholder="EX: TRANSPANTANAL" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-medium text-white focus:outline-none focus:ring-2 focus:ring-red-500">
-                </div>
-
-                <!-- OPÇÕES DE FOTO: CÂMERA E GALERIA SEPARADAS -->
-                <div class="flex items-center gap-2 pt-2">
-                    <label class="border-2 border-dashed border-red-500 rounded-2xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-700 transition w-1/4 text-center">
-                        <i class="fa-solid fa-camera text-xl text-red-500"></i>
-                        <span class="text-[9px] font-bold text-red-400 mt-1 uppercase">CÂMERA</span>
-                        <input type="file" id="input-foto-camera" accept="image/*" capture="environment" class="hidden">
-                    </label>
-
-                    <label class="border-2 border-dashed border-red-500 rounded-2xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-700 transition w-1/4 text-center">
-                        <i class="fa-solid fa-images text-xl text-red-500"></i>
-                        <span class="text-[9px] font-bold text-red-400 mt-1 uppercase">GALERIA</span>
-                        <input type="file" id="input-foto-galeria" accept="image/*" class="hidden">
-                    </label>
-                    
-                    <button id="btn-salvar" onclick="salvarVeiculo()" class="w-2/4 bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg transition uppercase tracking-wider flex items-center justify-center gap-2 text-xs">
-                        Salvar Entrada
-                    </button>
-                </div>
-                <div id="preview-foto-nome" class="text-xs text-slate-400 italic">Nenhuma foto selecionada</div>
+                <button id="btn-salvar" onclick="salvarVeiculo()" class="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-black py-4 rounded-2xl shadow-xl transition active:scale-95 uppercase tracking-wider flex items-center justify-center gap-2 text-sm mt-4">
+                    <i class="fa-solid fa-check"></i> Registrar Entrada
+                </button>
             </div>
         </section>
 
         <!-- ABA 2: PÁTIO -->
-        <section id="aba-patio" class="hidden space-y-4">
-            <h2 class="text-lg font-bold text-slate-300 px-2">Veículos no Pátio</h2>
-            <div id="lista-patio" class="space-y-4">
+        <section id="aba-patio" class="hidden space-y-3">
+            <div class="flex justify-between items-center px-1">
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Veículos Atualizados</h2>
+                <span class="text-[10px] text-slate-500 italic">Toque no card para ver detalhes</span>
+            </div>
+            <div id="lista-patio" class="space-y-3">
                 <!-- Cards dinâmicos -->
             </div>
         </section>
 
         <!-- ABA 3: HISTÓRICO -->
-        <section id="aba-historico" class="hidden space-y-4">
-            <h2 class="text-lg font-bold text-slate-300 px-2">Histórico de Saídas</h2>
+        <section id="aba-historico" class="hidden space-y-3">
+            <div class="flex justify-between items-center px-1">
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Histórico de Saídas</h2>
+                <span class="text-[10px] text-slate-500 italic">Toque para ver serviço/foto</span>
+            </div>
             <div id="lista-historico" class="space-y-3">
                 <!-- Histórico dinâmico -->
             </div>
         </section>
 
-        <!-- ABA 4: OPÇÕES / MANUTENÇÃO -->
+        <!-- ABA 4: OPÇÕES -->
         <section id="aba-opcoes" class="hidden space-y-4">
-            <div class="bg-slate-800 text-white p-6 rounded-3xl shadow-xl space-y-4 border border-slate-700">
-                <h2 class="text-red-500 font-bold text-lg uppercase italic">Opções do App</h2>
-                <p class="text-xs text-slate-400">Use este botão para resetar a memória cache do navegador se o aplicativo não estiver mostrando alterações recentes.</p>
+            <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-2xl space-y-4 border border-slate-800">
+                <h2 class="text-red-500 font-bold text-base uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i> Configurações do App
+                </h2>
+                <p class="text-xs text-slate-400 leading-relaxed">Limpe o cache local do aplicativo caso ocorra alguma divergência de atualização com o servidor do Supabase.</p>
                 
-                <button onclick="forcarAtualizacao()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg transition uppercase tracking-wider flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-arrows-rotate text-lg"></i>
-                    Forçar Atualização e Limpar Cache
+                <button onclick="forcarAtualizacao()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-4 rounded-2xl shadow-lg border border-slate-700 transition uppercase text-xs flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate text-red-400"></i> Limpar Cache e Recarregar
                 </button>
             </div>
         </section>
 
     </main>
 
-    <!-- MODAL DE VISUALIZAR FOTO EM TELA CHEIA -->
-    <div id="modal-foto" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-50 flex flex-col items-center justify-center p-4">
-        <div class="relative w-full max-w-lg bg-slate-800 p-4 rounded-3xl border border-slate-700 flex flex-col items-center gap-4 shadow-2xl">
-            <button onclick="fecharModalFoto()" class="absolute -top-3 -right-3 bg-red-600 text-white w-10 h-10 rounded-full font-bold shadow-lg flex items-center justify-center text-lg hover:bg-red-700 transition">&times;</button>
-            
-            <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wide">Foto do Veículo</h3>
-            <img id="foto-expandida" src="" class="w-full max-h-[65vh] object-contain rounded-2xl border border-slate-700 bg-slate-900">
-            
-            <div class="flex gap-3 w-full">
-                <a id="link-foto-original" href="#" target="_blank" rel="noopener noreferrer" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-3 rounded-2xl text-center text-xs uppercase flex items-center justify-center gap-2 transition">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Foto em Nova Aba
-                </a>
+    <!-- MODAL DE DETALHES COMPLETO (PÁTIO E HISTÓRICO) -->
+    <div id="modal-detalhes" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 text-white w-full max-w-md max-h-[90vh] rounded-3xl shadow-2xl border border-slate-800 flex flex-col overflow-hidden">
+            <!-- Topo do Modal -->
+            <div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
+                <div>
+                    <span id="detalhes-status-badge" class="text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider border">STATUS</span>
+                    <h3 id="detalhes-placa" class="text-xl font-black italic text-red-500 mt-1">PLACA</h3>
+                </div>
+                <button onclick="fecharModalDetalhes()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center font-bold">&times;</button>
+            </div>
+
+            <!-- Corpo Scrollable -->
+            <div class="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1">
+                <!-- Foto Principal -->
+                <div class="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center min-h-[180px]">
+                    <img id="detalhes-foto" src="" class="w-full max-h-60 object-contain rounded-2xl">
+                    <div id="detalhes-sem-foto" class="hidden text-center p-6 text-slate-500">
+                        <i class="fa-solid fa-image text-3xl mb-2 block"></i>
+                        <span class="text-xs italic">Nenhuma foto registrada</span>
+                    </div>
+                </div>
+
+                <!-- Dados do Veículo -->
+                <div class="grid grid-cols-2 gap-3 text-xs bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
+                    <div>
+                        <span class="text-slate-500 font-bold uppercase text-[10px] block">Modelo</span>
+                        <strong id="detalhes-modelo" class="text-slate-200 text-sm">---</strong>
+                    </div>
+                    <div>
+                        <span class="text-slate-500 font-bold uppercase text-[10px] block">Cliente</span>
+                        <strong id="detalhes-cliente" class="text-slate-200 text-sm">---</strong>
+                    </div>
+                    <div class="col-span-2 pt-2 border-t border-slate-800/50 flex justify-between text-[11px] text-slate-400">
+                        <span>Entrada: <strong id="detalhes-data-entrada" class="text-slate-200">---</strong></span>
+                        <span id="detalhes-container-saida">Saída: <strong id="detalhes-data-saida" class="text-emerald-400">---</strong></span>
+                    </div>
+                </div>
+
+                <!-- Bloco de Serviço Realizado (Visível no Histórico) -->
+                <div id="detalhes-bloco-servico" class="space-y-1.5 hidden">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
+                        <i class="fa-solid fa-wrench text-red-500"></i> Relatório de Serviço Realizado
+                    </span>
+                    <div id="detalhes-servico" class="bg-slate-950 border border-slate-800 p-3.5 rounded-2xl text-xs text-slate-300 leading-relaxed italic">
+                        ---
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rodapé do Modal (Ações) -->
+            <div id="detalhes-rodape" class="p-4 bg-slate-950 border-t border-slate-800 flex gap-2">
+                <!-- Botões alimentados via JS -->
             </div>
         </div>
     </div>
 
     <!-- MODAL DE EDIÇÃO -->
-    <div id="modal-editar" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-800 text-white w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 border border-slate-700">
-            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-                <h2 class="text-red-500 font-bold text-lg uppercase italic">Editar Cadastro</h2>
+    <div id="modal-editar" class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 text-white w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 border border-slate-800">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h2 class="text-red-500 font-bold text-base uppercase italic">Editar Cadastro</h2>
                 <button onclick="fecharModalEditar()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
             </div>
             
             <input type="hidden" id="edit-id">
 
-            <div>
-                <label class="text-xs font-bold text-slate-400 uppercase">Placa</label>
-                <input type="text" id="edit-placa" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-bold uppercase text-white focus:outline-none focus:ring-2 focus:ring-red-500">
-            </div>
-
-            <div>
-                <label class="text-xs font-bold text-slate-400 uppercase">Modelo do Veículo</label>
-                <input type="text" id="edit-modelo" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-medium text-white focus:outline-none focus:ring-2 focus:ring-red-500">
-            </div>
-
-            <div>
-                <label class="text-xs font-bold text-slate-400 uppercase">Nome do Cliente</label>
-                <input type="text" id="edit-cliente" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-medium text-white focus:outline-none focus:ring-2 focus:ring-red-500">
-            </div>
-
-            <!-- FOTO NO MODAL EDITAR SEPARADA EM CÂMERA E GALERIA -->
-            <div>
-                <label class="text-xs font-bold text-slate-400 uppercase">Alterar Foto (Opcional)</label>
-                <div class="flex gap-2 mt-1">
-                    <label class="border-2 border-dashed border-slate-600 rounded-2xl p-3 flex flex-1 items-center justify-center gap-2 cursor-pointer hover:bg-slate-700 transition">
-                        <i class="fa-solid fa-camera text-lg text-red-500"></i>
-                        <span class="text-xs font-bold text-slate-300">Câmera</span>
-                        <input type="file" id="edit-foto-camera" accept="image/*" capture="environment" class="hidden">
-                    </label>
-                    <label class="border-2 border-dashed border-slate-600 rounded-2xl p-3 flex flex-1 items-center justify-center gap-2 cursor-pointer hover:bg-slate-700 transition">
-                        <i class="fa-solid fa-images text-lg text-red-500"></i>
-                        <span class="text-xs font-bold text-slate-300">Galeria</span>
-                        <input type="file" id="edit-foto-galeria" accept="image/*" class="hidden">
-                    </label>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="font-bold text-slate-400 uppercase block mb-1">Placa</label>
+                    <input type="text" id="edit-placa" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl font-bold uppercase text-white focus:ring-2 focus:ring-red-500">
                 </div>
-                <div id="edit-preview-foto-nome" class="text-[11px] text-slate-400 italic mt-1">Deixe em branco para manter a foto atual</div>
+                <div>
+                    <label class="font-bold text-slate-400 uppercase block mb-1">Modelo</label>
+                    <input type="text" id="edit-modelo" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl font-medium text-white focus:ring-2 focus:ring-red-500">
+                </div>
+                <div>
+                    <label class="font-bold text-slate-400 uppercase block mb-1">Cliente</label>
+                    <input type="text" id="edit-cliente" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl font-medium text-white focus:ring-2 focus:ring-red-500">
+                </div>
+                <div>
+                    <label class="font-bold text-slate-400 uppercase block mb-1">Alterar Foto (Opcional)</label>
+                    <div class="grid grid-cols-2 gap-2 mt-1">
+                        <label class="border border-slate-700 bg-slate-950 rounded-xl p-2.5 flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800">
+                            <i class="fa-solid fa-camera text-red-500"></i>
+                            <span class="text-xs text-slate-300">Câmera</span>
+                            <input type="file" id="edit-foto-camera" accept="image/*" capture="environment" class="hidden">
+                        </label>
+                        <label class="border border-slate-700 bg-slate-950 rounded-xl p-2.5 flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800">
+                            <i class="fa-solid fa-images text-red-500"></i>
+                            <span class="text-xs text-slate-300">Galeria</span>
+                            <input type="file" id="edit-foto-galeria" accept="image/*" class="hidden">
+                        </label>
+                    </div>
+                    <div id="edit-preview-foto-nome" class="text-[10px] text-slate-400 italic mt-1 text-center">Manter foto atual</div>
+                </div>
             </div>
 
-            <div class="flex gap-3 pt-2">
-                <button onclick="fecharModalEditar()" class="w-1/2 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-2xl transition uppercase">Cancelar</button>
-                <button id="btn-atualizar" onclick="atualizarVeiculo()" class="w-1/2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-2xl shadow transition uppercase">Salvar Alterações</button>
+            <div class="flex gap-2 pt-2">
+                <button onclick="fecharModalEditar()" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl uppercase text-xs">Cancelar</button>
+                <button id="btn-atualizar" onclick="atualizarVeiculo()" class="w-1/2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow uppercase text-xs">Salvar</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DE SAÍDA / RELATÓRIO DE SERVIÇO -->
-    <div id="modal-saida" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-800 text-white w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 border border-slate-700">
-            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-                <h2 class="text-emerald-400 font-bold text-lg uppercase italic">Relatório de Saída</h2>
+    <!-- MODAL DE SAÍDA -->
+    <div id="modal-saida" class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 text-white w-full max-w-md p-6 rounded-3xl shadow-2xl space-y-4 border border-slate-800">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h2 class="text-emerald-400 font-bold text-base uppercase italic">Relatório de Saída</h2>
                 <button onclick="fecharModalSaida()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
             </div>
             
-            <p id="saida-placa-label" class="text-sm font-bold text-red-400 bg-slate-900 p-3 rounded-xl border border-slate-700 text-center"></p>
-            
+            <p id="saida-placa-label" class="text-xs font-bold text-red-400 bg-slate-950 p-3 rounded-xl border border-slate-800 text-center uppercase tracking-wide"></p>
             <input type="hidden" id="saida-id">
 
             <div>
-                <label class="text-xs font-bold text-slate-400 uppercase">Serviço Realizado / Observações</label>
-                <textarea id="saida-servico" rows="4" placeholder="EX: REVISÃO DE BICOS INJETORES, TROCA DE FILTRO E TESTE DE BANCADA." class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl font-medium text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                <label class="text-xs font-bold text-slate-400 uppercase block mb-1">Serviço Realizado / Observações</label>
+                <textarea id="saida-servico" rows="4" placeholder="EX: REVISÃO DE BICOS INJETORES, TROCA DE FILTROS E TESTE DE BANCADA." class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl font-medium text-xs text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
             </div>
 
-            <div class="flex gap-3 pt-2">
-                <button onclick="fecharModalSaida()" class="w-1/2 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-2xl transition uppercase">Cancelar</button>
-                <button onclick="confirmarSaida()" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl shadow transition uppercase">Liberar Veículo</button>
+            <div class="flex gap-2 pt-2">
+                <button onclick="fecharModalSaida()" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl uppercase text-xs">Cancelar</button>
+                <button onclick="confirmarSaida()" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow uppercase text-xs">Liberar Veículo</button>
             </div>
         </div>
     </div>
 
-    <!-- MENU INFERIOR FIXO -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around py-3 shadow-2xl z-40">
-        <button onclick="mudarAba('entrada')" id="nav-entrada" class="flex flex-col items-center text-red-500">
-            <i class="fa-solid fa-plus text-lg"></i>
-            <span class="text-[10px] font-bold mt-1">ENTRADA</span>
+    <!-- NAVEGAÇÃO INFERIOR FIXA -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800/80 flex justify-around py-2.5 shadow-2xl z-40">
+        <button onclick="mudarAba('entrada')" id="nav-entrada" class="flex flex-col items-center text-red-500 transition">
+            <i class="fa-solid fa-plus-circle text-lg"></i>
+            <span class="text-[10px] font-bold mt-1 tracking-wider">ENTRADA</span>
         </button>
-        <button onclick="mudarAba('patio')" id="nav-patio" class="flex flex-col items-center text-slate-400">
-            <i class="fa-solid fa-truck text-lg"></i>
-            <span class="text-[10px] font-bold mt-1">PÁTIO</span>
+        <button onclick="mudarAba('patio')" id="nav-patio" class="flex flex-col items-center text-slate-500 transition">
+            <i class="fa-solid fa-truck-front text-lg"></i>
+            <span class="text-[10px] font-bold mt-1 tracking-wider">PÁTIO</span>
         </button>
-        <button onclick="mudarAba('historico')" id="nav-historico" class="flex flex-col items-center text-slate-400">
-            <i class="fa-solid fa-clipboard-list text-lg"></i>
-            <span class="text-[10px] font-bold mt-1">HISTÓRICO</span>
+        <button onclick="mudarAba('historico')" id="nav-historico" class="flex flex-col items-center text-slate-500 transition">
+            <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+            <span class="text-[10px] font-bold mt-1 tracking-wider">HISTÓRICO</span>
         </button>
-        <button onclick="mudarAba('opcoes')" id="nav-opcoes" class="flex flex-col items-center text-slate-400">
+        <button onclick="mudarAba('opcoes')" id="nav-opcoes" class="flex flex-col items-center text-slate-500 transition">
             <i class="fa-solid fa-gear text-lg"></i>
-            <span class="text-[10px] font-bold mt-1">OPÇÕES</span>
+            <span class="text-[10px] font-bold mt-1 tracking-wider">OPÇÕES</span>
         </button>
     </nav>
 
-    <!-- SCRIPT DE CONEXÃO E LÓGICA -->
+    <!-- SCRIPT DE REGRA DE NEGÓCIO -->
     <script>
         const SUPABASE_URL = 'https://ywybppfkyekqlrndwhdn.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_R08_JT0lLER2lnRE-v4xSw_4Dgl8BDU';
@@ -220,15 +280,13 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let arquivoFoto = null;
         let arquivoFotoEditar = null;
-        let veiculosPatioMemoria = [];
+        let listaPatioMemoria = [];
+        let listaHistoricoMemoria = [];
 
-        // COMPRESSÃO E FORÇA FORMATO IMAGE/JPEG
-        function comprimirImagem(file, maxWidth = 1000, quality = 0.7) {
+        // OTIMIZAÇÃO E CONVERSÃO FORÇADA PARA JPG
+        function comprimirImagem(file, maxWidth = 1000, quality = 0.75) {
             return new Promise((resolve) => {
-                if (!file) {
-                    resolve(null);
-                    return;
-                }
+                if (!file) { resolve(null); return; }
 
                 const img = new Image();
                 const objectUrl = URL.createObjectURL(file);
@@ -252,10 +310,7 @@
                     ctx.drawImage(img, 0, 0, width, height);
 
                     canvas.toBlob((blob) => {
-                        if (!blob) {
-                            resolve(file);
-                            return;
-                        }
+                        if (!blob) { resolve(file); return; }
                         const arquivoFinal = new File([blob], `foto_${Date.now()}.jpg`, { type: 'image/jpeg' });
                         resolve(arquivoFinal);
                     }, 'image/jpeg', quality);
@@ -268,117 +323,78 @@
             });
         }
 
-        // SELEÇÃO DE ARQUIVOS (ENTRADA)
-        function escutarFoto(inputId, previewId, eEditar = false) {
-            const input = document.getElementById(inputId);
-            if (!input) return;
-            input.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if(file) {
-                    if (eEditar) {
-                        arquivoFotoEditar = file;
-                    } else {
-                        arquivoFoto = file;
-                    }
-                    document.getElementById(previewId).innerText = "Foto selecionada: " + file.name;
+        // LEITORES DE INPUT FOTO
+        function vincularInputFoto(idInput, idPreview, eEdicao = false) {
+            const el = document.getElementById(idInput);
+            if (!el) return;
+            el.addEventListener('change', (e) => {
+                const f = e.target.files[0];
+                if (f) {
+                    if (eEdicao) arquivoFotoEditar = f;
+                    else arquivoFoto = f;
+                    document.getElementById(idPreview).innerText = "Selecionado: " + f.name;
                 }
             });
         }
 
-        escutarFoto('input-foto-camera', 'preview-foto-nome', false);
-        escutarFoto('input-foto-galeria', 'preview-foto-nome', false);
-        escutarFoto('edit-foto-camera', 'edit-preview-foto-nome', true);
-        escutarFoto('edit-foto-galeria', 'edit-preview-foto-nome', true);
+        vincularInputFoto('input-foto-camera', 'preview-foto-nome', false);
+        vincularInputFoto('input-foto-galeria', 'preview-foto-nome', false);
+        vincularInputFoto('edit-foto-camera', 'edit-preview-foto-nome', true);
+        vincularInputFoto('edit-foto-galeria', 'edit-preview-foto-nome', true);
 
-        function verFoto(url) {
-            if (!url || url.includes('placehold.co')) {
-                alert('Este veículo não possui foto cadastrada.');
-                return;
-            }
-            document.getElementById('foto-expandida').src = url;
-            document.getElementById('link-foto-original').href = url;
-            document.getElementById('modal-foto').classList.remove('hidden');
-        }
-
-        function fecharModalFoto() {
-            document.getElementById('modal-foto').classList.add('hidden');
-        }
-
+        // NAVEGAÇÃO DE ABAS
         function mudarAba(aba) {
-            document.getElementById('aba-entrada').classList.add('hidden');
-            document.getElementById('aba-patio').classList.add('hidden');
-            document.getElementById('aba-historico').classList.add('hidden');
-            document.getElementById('aba-opcoes').classList.add('hidden');
-
-            document.getElementById('nav-entrada').className = "flex flex-col items-center text-slate-400";
-            document.getElementById('nav-patio').className = "flex flex-col items-center text-slate-400";
-            document.getElementById('nav-historico').className = "flex flex-col items-center text-slate-400";
-            document.getElementById('nav-opcoes').className = "flex flex-col items-center text-slate-400";
+            ['entrada', 'patio', 'historico', 'opcoes'].forEach(a => {
+                document.getElementById(`aba-${a}`).classList.add('hidden');
+                document.getElementById(`nav-${a}`).className = "flex flex-col items-center text-slate-500 transition";
+            });
 
             document.getElementById(`aba-${aba}`).classList.remove('hidden');
-            document.getElementById(`nav-${aba}`).className = "flex flex-col items-center text-red-500";
+            document.getElementById(`nav-${aba}`).className = "flex flex-col items-center text-red-500 transition";
 
-            if(aba === 'patio') carregarPatio();
-            if(aba === 'historico') carregarHistorico();
+            if (aba === 'patio') carregarPatio();
+            if (aba === 'historico') carregarHistorico();
         }
 
-        async function forcarAtualizacao() {
-            if (confirm("Deseja forçar a atualização do aplicativo e limpar a memória cache do celular?")) {
-                if ('serviceWorker' in navigator) {
-                    const registrations = await navigator.serviceWorker.getRegistrations();
-                    for (let registration of registrations) {
-                        await registration.unregister();
-                    }
-                }
-                if ('caches' in window) {
-                    const keys = await caches.keys();
-                    for (let key of keys) {
-                        await caches.delete(key);
-                    }
-                }
-                alert("Cache limpo! O aplicativo será recarregado.");
-                window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
-            }
-        }
-
+        // SALVAR VEÍCULO
         async function salvarVeiculo() {
             const placa = document.getElementById('input-placa').value.toUpperCase().trim();
             const modelo = document.getElementById('input-modelo').value.toUpperCase().trim();
             const cliente = document.getElementById('input-cliente').value.toUpperCase().trim();
-            const btnSalvar = document.getElementById('btn-salvar');
+            const btn = document.getElementById('btn-salvar');
 
-            if(!placa || !modelo || !cliente) {
-                alert('Preencha todos os campos!');
+            if (!placa || !modelo || !cliente) {
+                alert('Preencha os campos obrigatórios!');
                 return;
             }
 
-            btnSalvar.disabled = true;
-            btnSalvar.innerText = 'Enviando...';
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Enviando...`;
 
             let fotoUrl = '';
-            if(arquivoFoto) {
-                const fotoParaEnvio = await comprimirImagem(arquivoFoto, 1000, 0.7);
-                const nomeLimpo = `${Date.now()}_${Math.floor(Math.random() * 1000)}.jpg`;
+            if (arquivoFoto) {
+                const fotoParaEnvio = await comprimirImagem(arquivoFoto);
+                const nomeArquivo = `${Date.now()}_${Math.floor(Math.random() * 1000)}.jpg`;
 
-                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                const { error: uploadError } = await supabaseClient.storage
                     .from('fotos-veiculos')
-                    .upload(nomeLimpo, fotoParaEnvio, {
+                    .upload(nomeArquivo, fotoParaEnvio, {
                         cacheControl: '3600',
                         upsert: true,
                         contentType: 'image/jpeg'
                     });
 
-                if(uploadError) {
+                if (uploadError) {
                     alert('Erro ao enviar foto: ' + uploadError.message);
-                    btnSalvar.disabled = false;
-                    btnSalvar.innerText = 'Salvar Entrada';
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-check"></i> Registrar Entrada`;
                     return;
                 }
 
                 const { data: publicData } = supabaseClient.storage
                     .from('fotos-veiculos')
-                    .getPublicUrl(nomeLimpo);
-                
+                    .getPublicUrl(nomeArquivo);
+
                 fotoUrl = publicData.publicUrl;
             }
 
@@ -386,13 +402,12 @@
                 .from('patio_veiculos')
                 .insert([{ placa, modelo, cliente, foto_url: fotoUrl, status: 'PATIO' }]);
 
-            btnSalvar.disabled = false;
-            btnSalvar.innerText = 'Salvar Entrada';
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-check"></i> Registrar Entrada`;
 
-            if(error) {
-                alert('Erro ao salvar no banco: ' + error.message);
+            if (error) {
+                alert('Erro ao gravar dados: ' + error.message);
             } else {
-                alert('Veículo cadastrado com sucesso!');
                 document.getElementById('input-placa').value = '';
                 document.getElementById('input-modelo').value = '';
                 document.getElementById('input-cliente').value = '';
@@ -404,64 +419,176 @@
             }
         }
 
+        // CARREGAR PÁTIO
         async function carregarPatio() {
+            const container = document.getElementById('lista-patio');
+            container.innerHTML = `<div class="text-center py-10 text-slate-500"><i class="fa-solid fa-spinner fa-spin text-xl"></i></div>`;
+
             const { data, error } = await supabaseClient
                 .from('patio_veiculos')
                 .select('*')
                 .eq('status', 'PATIO')
                 .order('data_entrada', { ascending: false });
 
-            if(error) {
-                alert('Erro ao carregar lista: ' + error.message);
+            if (error) {
+                alert('Erro ao carregar pátio: ' + error.message);
                 return;
             }
 
-            veiculosPatioMemoria = data || [];
-            document.getElementById('contador-patio').innerText = `${veiculosPatioMemoria.length} NO PÁTIO`;
-            const container = document.getElementById('lista-patio');
+            listaPatioMemoria = data || [];
+            document.getElementById('contador-patio').innerText = `${listaPatioMemoria.length} NO PÁTIO`;
             container.innerHTML = '';
 
-            if(veiculosPatioMemoria.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-500 py-8 italic">Nenhum veículo no pátio.</p>`;
+            if (listaPatioMemoria.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-600 py-12 italic text-xs">Nenhum veículo estacionado no pátio no momento.</p>`;
                 return;
             }
 
-            veiculosPatioMemoria.forEach((v, index) => {
-                const imgSrc = v.foto_url ? v.foto_url : 'https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto';
-                const temFoto = v.foto_url && v.foto_url.trim() !== '';
+            listaPatioMemoria.forEach((v, index) => {
+                const imgSrc = v.foto_url ? v.foto_url : 'https://placehold.co/150x150/0f172a/475569?text=Sem+Foto';
 
                 container.innerHTML += `
-                    <div class="bg-slate-800 text-white p-4 rounded-3xl shadow-xl flex items-center justify-between gap-3 border border-slate-700">
-                        <div class="relative cursor-pointer" onclick="verFoto('${v.foto_url || ''}')" title="Clique para ampliar">
-                            <img src="${imgSrc}" onerror="this.onerror=null; this.src='https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto';" class="w-16 h-16 rounded-2xl object-cover border border-slate-600 hover:opacity-80 transition">
-                            ${temFoto ? '<span class="absolute -top-1 -right-1 bg-red-600 text-white text-[9px] p-1 rounded-full shadow flex items-center justify-center w-4 h-4"><i class="fa-solid fa-magnifying-glass"></i></span>' : ''}
+                    <div onclick="abrirDetalhes(${index}, 'PATIO')" class="bg-slate-900 hover:bg-slate-850 p-3.5 rounded-2xl shadow-lg flex items-center justify-between gap-3 border border-slate-800/80 active:scale-[0.99] transition cursor-pointer">
+                        <img src="${imgSrc}" onerror="this.onerror=null; this.src='https://placehold.co/150x150/0f172a/475569?text=Sem+Foto';" class="w-16 h-16 rounded-xl object-cover border border-slate-800 bg-slate-950">
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-black italic text-red-500 text-base tracking-wide truncate">${v.placa}</h3>
+                            <p class="text-xs font-bold text-slate-200 truncate">${v.modelo}</p>
+                            <p class="text-[11px] text-slate-400 truncate">${v.cliente}</p>
                         </div>
-                        <div class="flex-1">
-                            <h3 class="font-black italic text-red-500 text-lg">${v.placa}</h3>
-                            <p class="text-xs text-slate-300 font-bold">${v.modelo}</p>
-                            <p class="text-[11px] text-slate-400">${v.cliente}</p>
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <button onclick="abrirModalEditar(${index})" class="bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-3 py-2 rounded-xl transition">EDITAR</button>
-                            <button onclick="abrirModalSaida(${index})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-3 py-2 rounded-xl shadow transition">SAÍDA</button>
+                        <div class="flex flex-col gap-1.5" onclick="event.stopPropagation()">
+                            <button onclick="abrirModalEditar(${index})" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-slate-700 uppercase">Editar</button>
+                            <button onclick="abrirModalSaida(${index})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow uppercase">Saída</button>
                         </div>
                     </div>
                 `;
             });
         }
 
+        // CARREGAR HISTÓRICO
+        async function carregarHistorico() {
+            const container = document.getElementById('lista-historico');
+            container.innerHTML = `<div class="text-center py-10 text-slate-500"><i class="fa-solid fa-spinner fa-spin text-xl"></i></div>`;
+
+            const { data, error } = await supabaseClient
+                .from('patio_veiculos')
+                .select('*')
+                .eq('status', 'SAIU')
+                .order('data_saida', { ascending: false })
+                .limit(40);
+
+            if (error) {
+                alert('Erro ao carregar histórico: ' + error.message);
+                return;
+            }
+
+            listaHistoricoMemoria = data || [];
+            container.innerHTML = '';
+
+            if (listaHistoricoMemoria.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-600 py-12 italic text-xs">Nenhuma saída registrada no histórico.</p>`;
+                return;
+            }
+
+            listaHistoricoMemoria.forEach((v, index) => {
+                const dataSaida = v.data_saida ? new Date(v.data_saida).toLocaleDateString('pt-BR') : 'N/I';
+                const imgSrc = v.foto_url ? v.foto_url : 'https://placehold.co/150x150/0f172a/475569?text=Sem+Foto';
+
+                container.innerHTML += `
+                    <div onclick="abrirDetalhes(${index}, 'HISTORICO')" class="bg-slate-900 hover:bg-slate-850 p-3.5 rounded-2xl shadow-lg flex items-center justify-between gap-3 border border-slate-800/80 active:scale-[0.99] transition cursor-pointer">
+                        <img src="${imgSrc}" onerror="this.onerror=null; this.src='https://placehold.co/150x150/0f172a/475569?text=Sem+Foto';" class="w-14 h-14 rounded-xl object-cover border border-slate-800 bg-slate-950">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-black italic text-red-500 text-base tracking-wide">${v.placa}</h3>
+                                <span class="text-[9px] bg-emerald-950 text-emerald-400 font-bold px-2 py-0.5 rounded border border-emerald-800/60 uppercase">${dataSaida}</span>
+                            </div>
+                            <p class="text-xs font-bold text-slate-200 truncate">${v.modelo}</p>
+                            <p class="text-[11px] text-slate-400 truncate">${v.cliente}</p>
+                        </div>
+                        <button onclick="event.stopPropagation(); excluirHistorico('${v.id}')" title="Excluir" class="bg-slate-950 text-slate-500 hover:text-red-400 p-2 rounded-xl border border-slate-800 transition">
+                            <i class="fa-solid fa-trash-can text-sm"></i>
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        // MODAL UNIFICADO DE DETALHES (VER FOTO E INFORMAÇÕES COMPLETAS)
+        function abrirDetalhes(index, origem) {
+            const v = (origem === 'PATIO') ? listaPatioMemoria[index] : listaHistoricoMemoria[index];
+            if (!v) return;
+
+            document.getElementById('detalhes-placa').innerText = v.placa;
+            document.getElementById('detalhes-modelo').innerText = v.modelo;
+            document.getElementById('detalhes-cliente').innerText = v.cliente;
+
+            // Datas
+            const dtEntrada = v.data_entrada ? new Date(v.data_entrada).toLocaleDateString('pt-BR') : 'N/I';
+            document.getElementById('detalhes-data-entrada').innerText = dtEntrada;
+
+            // Foto
+            const imgEl = document.getElementById('detalhes-foto');
+            const semFotoEl = document.getElementById('detalhes-sem-foto');
+
+            if (v.foto_url && v.foto_url.trim() !== '') {
+                imgEl.src = v.foto_url;
+                imgEl.classList.remove('hidden');
+                semFotoEl.classList.add('hidden');
+            } else {
+                imgEl.classList.add('hidden');
+                semFotoEl.classList.remove('hidden');
+            }
+
+            // Exibição Condicional para Pátio / Histórico
+            const badge = document.getElementById('detalhes-status-badge');
+            const blocoServico = document.getElementById('detalhes-bloco-servico');
+            const containerSaida = document.getElementById('detalhes-container-saida');
+            const rodape = document.getElementById('detalhes-rodape');
+
+            if (origem === 'PATIO') {
+                badge.innerText = 'NO PÁTIO';
+                badge.className = "text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-red-950 text-red-400 border border-red-800";
+                blocoServico.classList.add('hidden');
+                containerSaida.classList.add('hidden');
+
+                rodape.innerHTML = `
+                    <button onclick="fecharModalDetalhes(); abrirModalEditar(${index})" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl uppercase text-xs">Editar</button>
+                    <button onclick="fecharModalDetalhes(); abrirModalSaida(${index})" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl uppercase text-xs">Dar Saída</button>
+                `;
+            } else {
+                badge.innerText = 'LIBERADO';
+                badge.className = "text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-emerald-950 text-emerald-400 border border-emerald-800";
+                
+                blocoServico.classList.remove('hidden');
+                document.getElementById('detalhes-servico').innerText = v.servico_realizado || 'Nenhum relatório cadastrado.';
+                
+                containerSaida.classList.remove('hidden');
+                const dtSaida = v.data_saida ? new Date(v.data_saida).toLocaleDateString('pt-BR') : 'N/I';
+                document.getElementById('detalhes-data-saida').innerText = dtSaida;
+
+                rodape.innerHTML = `
+                    <button onclick="fecharModalDetalhes()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl uppercase text-xs">Fechar</button>
+                `;
+            }
+
+            document.getElementById('modal-detalhes').classList.remove('hidden');
+        }
+
+        function fecharModalDetalhes() {
+            document.getElementById('modal-detalhes').classList.add('hidden');
+        }
+
+        // MODAL EDIÇÃO
         function abrirModalEditar(index) {
-            const v = veiculosPatioMemoria[index];
-            if(!v) return;
+            const v = listaPatioMemoria[index];
+            if (!v) return;
 
             document.getElementById('edit-id').value = v.id;
             document.getElementById('edit-placa').value = v.placa;
             document.getElementById('edit-modelo').value = v.modelo;
             document.getElementById('edit-cliente').value = v.cliente;
-            
             document.getElementById('edit-foto-camera').value = '';
             document.getElementById('edit-foto-galeria').value = '';
-            document.getElementById('edit-preview-foto-nome').innerText = 'Deixe em branco para manter a foto atual';
+            document.getElementById('edit-preview-foto-nome').innerText = 'Manter foto atual';
             arquivoFotoEditar = null;
 
             document.getElementById('modal-editar').classList.remove('hidden');
@@ -476,67 +603,67 @@
             const placa = document.getElementById('edit-placa').value.toUpperCase().trim();
             const modelo = document.getElementById('edit-modelo').value.toUpperCase().trim();
             const cliente = document.getElementById('edit-cliente').value.toUpperCase().trim();
-            const btnAtualizar = document.getElementById('btn-atualizar');
+            const btn = document.getElementById('btn-atualizar');
 
-            if(!placa || !modelo || !cliente) {
-                alert('Preencha todos os campos!');
+            if (!placa || !modelo || !cliente) {
+                alert('Preencha os campos!');
                 return;
             }
 
-            btnAtualizar.disabled = true;
-            btnAtualizar.innerText = 'Enviando...';
+            btn.disabled = true;
+            btn.innerText = 'Enviando...';
 
-            const dadosAtualizar = { placa, modelo, cliente };
+            const payload = { placa, modelo, cliente };
 
-            if(arquivoFotoEditar) {
-                const fotoParaEnvio = await comprimirImagem(arquivoFotoEditar, 1000, 0.7);
-                const nomeLimpo = `${Date.now()}_${Math.floor(Math.random() * 1000)}.jpg`;
+            if (arquivoFotoEditar) {
+                const fotoParaEnvio = await comprimirImagem(arquivoFotoEditar);
+                const nomeArquivo = `${Date.now()}_${Math.floor(Math.random() * 1000)}.jpg`;
 
-                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                const { error: uploadError } = await supabaseClient.storage
                     .from('fotos-veiculos')
-                    .upload(nomeLimpo, fotoParaEnvio, {
+                    .upload(nomeArquivo, fotoParaEnvio, {
                         cacheControl: '3600',
                         upsert: true,
                         contentType: 'image/jpeg'
                     });
 
-                if(uploadError) {
-                    alert('Erro ao enviar nova foto: ' + uploadError.message);
-                    btnAtualizar.disabled = false;
-                    btnAtualizar.innerText = 'Salvar Alterações';
+                if (uploadError) {
+                    alert('Erro ao enviar foto: ' + uploadError.message);
+                    btn.disabled = false;
+                    btn.innerText = 'Salvar';
                     return;
                 }
 
                 const { data: publicData } = supabaseClient.storage
                     .from('fotos-veiculos')
-                    .getPublicUrl(nomeLimpo);
+                    .getPublicUrl(nomeArquivo);
 
-                dadosAtualizar.foto_url = publicData.publicUrl;
+                payload.foto_url = publicData.publicUrl;
             }
 
             const { error } = await supabaseClient
                 .from('patio_veiculos')
-                .update(dadosAtualizar)
+                .update(payload)
                 .eq('id', id);
 
-            btnAtualizar.disabled = false;
-            btnAtualizar.innerText = 'Salvar Alterações';
+            btn.disabled = false;
+            btn.innerText = 'Salvar';
 
-            if(error) {
-                alert('Erro ao atualizar no banco: ' + error.message);
+            if (error) {
+                alert('Erro ao atualizar: ' + error.message);
             } else {
-                alert('Veículo atualizado com sucesso!');
                 fecharModalEditar();
                 carregarPatio();
             }
         }
 
+        // MODAL SAÍDA
         function abrirModalSaida(index) {
-            const v = veiculosPatioMemoria[index];
-            if(!v) return;
+            const v = listaPatioMemoria[index];
+            if (!v) return;
 
             document.getElementById('saida-id').value = v.id;
-            document.getElementById('saida-placa-label').innerText = `${v.placa} - ${v.modelo} (${v.cliente})`;
+            document.getElementById('saida-placa-label').innerText = `${v.placa} - ${v.modelo}`;
             document.getElementById('saida-servico').value = '';
             document.getElementById('modal-saida').classList.remove('hidden');
         }
@@ -549,8 +676,8 @@
             const id = document.getElementById('saida-id').value;
             const servico = document.getElementById('saida-servico').value.toUpperCase().trim();
 
-            if(!servico) {
-                alert('Descreva o relatório do serviço antes de liberar!');
+            if (!servico) {
+                alert('Informe o serviço realizado antes de liberar!');
                 return;
             }
 
@@ -563,83 +690,39 @@
                 })
                 .eq('id', id);
 
-            if(error) {
+            if (error) {
                 alert('Erro ao registrar saída: ' + error.message);
             } else {
-                alert('Saída registrada com sucesso!');
                 fecharModalSaida();
                 carregarPatio();
             }
         }
 
-        async function carregarHistorico() {
-            const { data, error } = await supabaseClient
-                .from('patio_veiculos')
-                .select('*')
-                .eq('status', 'SAIU')
-                .order('data_saida', { ascending: false })
-                .limit(30);
-
-            const container = document.getElementById('lista-historico');
-            container.innerHTML = '';
-
-            if(error) {
-                alert('Erro ao carregar histórico: ' + error.message);
-                return;
-            }
-
-            if(!data || data.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-500 py-8 italic">Nenhuma saída registrada.</p>`;
-                return;
-            }
-
-            data.forEach(v => {
-                const dataSaidaFormatada = v.data_saida ? new Date(v.data_saida).toLocaleDateString('pt-BR') : 'Data N/I';
-                const temFoto = v.foto_url && v.foto_url.trim() !== '';
-
-                container.innerHTML += `
-                    <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-2 text-sm">
-                        <div class="flex justify-between items-center border-b border-slate-700 pb-2">
-                            <span class="font-bold text-red-500 text-base">${v.placa}</span>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] bg-emerald-900 text-emerald-300 font-bold px-2 py-1 rounded-md border border-emerald-700 uppercase">LIBERADO (${dataSaidaFormatada})</span>
-                                <button onclick="excluirHistorico('${v.id}')" title="Excluir do histórico" class="bg-red-950/60 hover:bg-red-600 text-red-400 hover:text-white text-xs px-2.5 py-1 rounded-md border border-red-800 transition flex items-center gap-1">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            ${temFoto ? `
-                                <img src="${v.foto_url}" onclick="verFoto('${v.foto_url}')" onerror="this.onerror=null; this.src='https://placehold.co/150x150/e2e8f0/475569?text=Sem+Foto';" class="w-12 h-12 rounded-xl object-cover border border-slate-600 cursor-pointer">
-                            ` : ''}
-                            <div class="text-xs text-slate-300 font-medium">
-                                <strong>${v.modelo}</strong><br>
-                                Cliente: ${v.cliente}
-                            </div>
-                        </div>
-                        <div class="text-xs text-slate-200 bg-slate-900 p-3 rounded-xl border border-slate-700">
-                            <strong class="text-red-400">Relatório / Serviço:</strong><br>
-                            ${v.servico_realizado || 'Sem observações'}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        // FUNÇÃO DE EXCLUIR DO HISTÓRICO
+        // EXCLUIR REGISTRO DO HISTÓRICO
         async function excluirHistorico(id) {
-            if (confirm("Tem certeza que deseja excluir este registro do histórico permanentemente?")) {
+            if (confirm("Deseja remover este registro do histórico permanentemente?")) {
                 const { error } = await supabaseClient
                     .from('patio_veiculos')
                     .delete()
                     .eq('id', id);
 
-                if (error) {
-                    alert('Erro ao excluir registro: ' + error.message);
-                } else {
-                    alert('Registro excluído do histórico com sucesso!');
-                    carregarHistorico();
+                if (error) alert('Erro ao excluir: ' + error.message);
+                else carregarHistorico();
+            }
+        }
+
+        // LIMPAR CACHE / SERVICE WORKER
+        async function forcarAtualizacao() {
+            if (confirm("Deseja forçar a atualização e limpar o cache do celular?")) {
+                if ('serviceWorker' in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    for (let r of regs) await r.unregister();
                 }
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    for (let k of keys) await caches.delete(k);
+                }
+                window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
             }
         }
 
@@ -647,6 +730,7 @@
             navigator.serviceWorker.register('sw.js').catch(() => {});
         }
 
+        // INICIALIZAÇÃO
         carregarPatio();
     </script>
 </body>
