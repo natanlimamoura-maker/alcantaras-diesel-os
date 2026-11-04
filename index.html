@@ -101,7 +101,7 @@
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-500">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
-                <input type="text" id="busca-patio" oninput="filtrarPatio()" placeholder="PESQUISAR PLACA NO PÁTIO..." class="w-full bg-slate-900 border border-slate-800 text-xs font-bold uppercase text-white pl-10 pr-4 py-3 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 placeholder:text-slate-600 transition">
+                <input type="text" id="busca-patio" oninput="filtrarPatio()" placeholder="PESQUISAR POR PLACA OU CLIENTE..." class="w-full bg-slate-900 border border-slate-800 text-xs font-bold uppercase text-white pl-10 pr-4 py-3 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 placeholder:text-slate-600 transition">
             </div>
 
             <div id="lista-patio" class="space-y-3">
@@ -121,7 +121,7 @@
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-500">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
-                <input type="text" id="busca-historico" oninput="filtrarHistorico()" placeholder="PESQUISAR PLACA NO HISTÓRICO..." class="w-full bg-slate-900 border border-slate-800 text-xs font-bold uppercase text-white pl-10 pr-4 py-3 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 placeholder:text-slate-600 transition">
+                <input type="text" id="busca-historico" oninput="filtrarHistorico()" placeholder="PESQUISAR POR PLACA OU CLIENTE..." class="w-full bg-slate-900 border border-slate-800 text-xs font-bold uppercase text-white pl-10 pr-4 py-3 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 placeholder:text-slate-600 transition">
             </div>
 
             <div id="lista-historico" class="space-y-3">
@@ -479,7 +479,6 @@
             listaPatioMemoria = data || [];
             document.getElementById('contador-patio').innerText = `${listaPatioMemoria.length} NO PÁTIO`;
             
-            // Limpa o campo de busca ao recarregar a lista
             document.getElementById('busca-patio').value = '';
             renderizarListaPatio(listaPatioMemoria);
         }
@@ -494,7 +493,6 @@
             }
 
             veiculos.forEach((v) => {
-                // Encontra o índice real na memória principal para manter as funções de edição/saída corretas
                 const indexReal = listaPatioMemoria.findIndex(item => item.id === v.id);
                 const imgSrc = v.foto_url ? v.foto_url : 'https://placehold.co/150x150/0f172a/475569?text=Sem+Foto';
 
@@ -517,7 +515,10 @@
 
         function filtrarPatio() {
             const termo = document.getElementById('busca-patio').value.toUpperCase().trim();
-            const filtrados = listaPatioMemoria.filter(v => v.placa.toUpperCase().includes(termo));
+            const filtrados = listaPatioMemoria.filter(v => 
+                v.placa.toUpperCase().includes(termo) || 
+                (v.cliente && v.cliente.toUpperCase().includes(termo))
+            );
             renderizarListaPatio(filtrados);
         }
 
@@ -540,7 +541,6 @@
 
             listaHistoricoMemoria = data || [];
             
-            // Limpa o campo de busca ao recarregar a lista
             document.getElementById('busca-historico').value = '';
             renderizarListaHistorico(listaHistoricoMemoria);
         }
@@ -580,7 +580,10 @@
 
         function filtrarHistorico() {
             const termo = document.getElementById('busca-historico').value.toUpperCase().trim();
-            const filtrados = listaHistoricoMemoria.filter(v => v.placa.toUpperCase().includes(termo));
+            const filtrados = listaHistoricoMemoria.filter(v => 
+                v.placa.toUpperCase().includes(termo) || 
+                (v.cliente && v.cliente.toUpperCase().includes(termo))
+            );
             renderizarListaHistorico(filtrados);
         }
 
