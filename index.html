@@ -28,7 +28,7 @@
             <h1 class="text-xl font-black italic tracking-wider text-white flex items-center gap-2">
                 <i class="fa-solid fa-truck-monster text-red-200"></i> CONTROLE DE PÁTIO
             </h1>
-            <p class="text-[10px] text-red-100/80 uppercase font-semibold tracking-widest">Gestão da Oficina</p>
+            <p class="text-[10px] text-red-100/80 uppercase font-semibold tracking-widest">Alcantara's Diesel</p>
         </div>
         <div class="bg-red-950/70 px-4 py-1.5 rounded-full border border-red-400/30 shadow-inner backdrop-blur-sm">
             <span id="contador-patio" class="text-xs font-black text-white tracking-wide">0 NO PÁTIO</span>
@@ -60,7 +60,7 @@
                     </div>
 
                     <div>
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide block mb-1">Cliente / Proprietário</label>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wide block mb-1">Cliente</label>
                         <input type="text" id="input-cliente" placeholder="EX: ANTHONY LOGÍSTICA" class="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-2xl font-semibold text-white placeholder:slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 transition">
                     </div>
                 </div>
@@ -95,6 +95,15 @@
                 <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Veículos no Pátio</h2>
                 <span class="text-[10px] text-slate-500 italic">Toque no card para ver detalhes</span>
             </div>
+            
+            <!-- CAMPO DE PESQUISA - PÁTIO -->
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-500">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </span>
+                <input type="text" id="busca-patio" oninput="filtrarPatio()" placeholder="PESQUISAR PLACA NO PÁTIO..." class="w-full bg-slate-900 border border-slate-800 text-xs font-bold uppercase text-white pl-10 pr-4 py-3 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 placeholder:text-slate-600 transition">
+            </div>
+
             <div id="lista-patio" class="space-y-3">
                 <!-- Cards dinâmicos -->
             </div>
@@ -106,6 +115,15 @@
                 <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Histórico de Saídas</h2>
                 <span class="text-[10px] text-slate-500 italic">Toque para ver serviço/foto</span>
             </div>
+
+            <!-- CAMPO DE PESQUISA - HISTÓRICO -->
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-500">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </span>
+                <input type="text" id="busca-historico" oninput="filtrarHistorico()" placeholder="PESQUISAR PLACA NO HISTÓRICO..." class="w-full bg-slate-900 border border-slate-800 text-xs font-bold uppercase text-white pl-10 pr-4 py-3 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 placeholder:text-slate-600 transition">
+            </div>
+
             <div id="lista-historico" class="space-y-3">
                 <!-- Histórico dinâmico -->
             </div>
@@ -294,7 +312,6 @@
             const nomeOuTipo = (file.name + ' ' + (file.type || '')).toLowerCase();
             const eHeic = nomeOuTipo.includes('.heic') || nomeOuTipo.includes('.heif') || nomeOuTipo.includes('heic') || nomeOuTipo.includes('heif');
 
-            // Se for arquivo HEIC/HEIF de iPhone/Android, converte para JPEG na memória
             if (eHeic && typeof heic2any !== 'undefined') {
                 try {
                     const blobConvertido = await heic2any({
@@ -461,18 +478,28 @@
 
             listaPatioMemoria = data || [];
             document.getElementById('contador-patio').innerText = `${listaPatioMemoria.length} NO PÁTIO`;
+            
+            // Limpa o campo de busca ao recarregar a lista
+            document.getElementById('busca-patio').value = '';
+            renderizarListaPatio(listaPatioMemoria);
+        }
+
+        function renderizarListaPatio(veiculos) {
+            const container = document.getElementById('lista-patio');
             container.innerHTML = '';
 
-            if (listaPatioMemoria.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-600 py-12 italic text-xs">Nenhum veículo estacionado no pátio no momento.</p>`;
+            if (veiculos.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-600 py-12 italic text-xs">Nenhum veículo encontrado.</p>`;
                 return;
             }
 
-            listaPatioMemoria.forEach((v, index) => {
+            veiculos.forEach((v) => {
+                // Encontra o índice real na memória principal para manter as funções de edição/saída corretas
+                const indexReal = listaPatioMemoria.findIndex(item => item.id === v.id);
                 const imgSrc = v.foto_url ? v.foto_url : 'https://placehold.co/150x150/0f172a/475569?text=Sem+Foto';
 
                 container.innerHTML += `
-                    <div onclick="abrirDetalhes(${index}, 'PATIO')" class="bg-slate-900 hover:bg-slate-850 p-3.5 rounded-2xl shadow-lg flex items-center justify-between gap-3 border border-slate-800/80 active:scale-[0.99] transition cursor-pointer">
+                    <div onclick="abrirDetalhes(${indexReal}, 'PATIO')" class="bg-slate-900 hover:bg-slate-850 p-3.5 rounded-2xl shadow-lg flex items-center justify-between gap-3 border border-slate-800/80 active:scale-[0.99] transition cursor-pointer">
                         <img src="${imgSrc}" onerror="this.onerror=null; this.src='https://placehold.co/150x150/0f172a/475569?text=Sem+Foto';" class="w-16 h-16 rounded-xl object-cover border border-slate-800 bg-slate-950">
                         <div class="flex-1 min-w-0">
                             <h3 class="font-black italic text-red-500 text-base tracking-wide truncate">${v.placa}</h3>
@@ -480,12 +507,18 @@
                             <p class="text-[11px] text-slate-400 truncate">${v.cliente}</p>
                         </div>
                         <div class="flex flex-col gap-1.5" onclick="event.stopPropagation()">
-                            <button onclick="abrirModalEditar(${index})" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-slate-700 uppercase">Editar</button>
-                            <button onclick="abrirModalSaida(${index})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow uppercase">Saída</button>
+                            <button onclick="abrirModalEditar(${indexReal})" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-slate-700 uppercase">Editar</button>
+                            <button onclick="abrirModalSaida(${indexReal})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow uppercase">Saída</button>
                         </div>
                     </div>
                 `;
             });
+        }
+
+        function filtrarPatio() {
+            const termo = document.getElementById('busca-patio').value.toUpperCase().trim();
+            const filtrados = listaPatioMemoria.filter(v => v.placa.toUpperCase().includes(termo));
+            renderizarListaPatio(filtrados);
         }
 
         // LISTAR HISTÓRICO DE SAÍDAS
@@ -506,19 +539,28 @@
             }
 
             listaHistoricoMemoria = data || [];
+            
+            // Limpa o campo de busca ao recarregar a lista
+            document.getElementById('busca-historico').value = '';
+            renderizarListaHistorico(listaHistoricoMemoria);
+        }
+
+        function renderizarListaHistorico(veiculos) {
+            const container = document.getElementById('lista-historico');
             container.innerHTML = '';
 
-            if (listaHistoricoMemoria.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-600 py-12 italic text-xs">Nenhuma saída registrada no histórico.</p>`;
+            if (veiculos.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-600 py-12 italic text-xs">Nenhum registro encontrado.</p>`;
                 return;
             }
 
-            listaHistoricoMemoria.forEach((v, index) => {
+            veiculos.forEach((v) => {
+                const indexReal = listaHistoricoMemoria.findIndex(item => item.id === v.id);
                 const dataSaida = v.data_saida ? new Date(v.data_saida).toLocaleDateString('pt-BR') : 'N/I';
                 const imgSrc = v.foto_url ? v.foto_url : 'https://placehold.co/150x150/0f172a/475569?text=Sem+Foto';
 
                 container.innerHTML += `
-                    <div onclick="abrirDetalhes(${index}, 'HISTORICO')" class="bg-slate-900 hover:bg-slate-850 p-3.5 rounded-2xl shadow-lg flex items-center justify-between gap-3 border border-slate-800/80 active:scale-[0.99] transition cursor-pointer">
+                    <div onclick="abrirDetalhes(${indexReal}, 'HISTORICO')" class="bg-slate-900 hover:bg-slate-850 p-3.5 rounded-2xl shadow-lg flex items-center justify-between gap-3 border border-slate-800/80 active:scale-[0.99] transition cursor-pointer">
                         <img src="${imgSrc}" onerror="this.onerror=null; this.src='https://placehold.co/150x150/0f172a/475569?text=Sem+Foto';" class="w-14 h-14 rounded-xl object-cover border border-slate-800 bg-slate-950">
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2">
@@ -536,6 +578,12 @@
             });
         }
 
+        function filtrarHistorico() {
+            const termo = document.getElementById('busca-historico').value.toUpperCase().trim();
+            const filtrados = listaHistoricoMemoria.filter(v => v.placa.toUpperCase().includes(termo));
+            renderizarListaHistorico(filtrados);
+        }
+
         // ABRIR MODAL COMPLETO DE DETALHES AO CLICAR NO CARRO
         function abrirDetalhes(index, origem) {
             const v = (origem === 'PATIO') ? listaPatioMemoria[index] : listaHistoricoMemoria[index];
@@ -544,51 +592,55 @@
             document.getElementById('detalhes-placa').innerText = v.placa;
             document.getElementById('detalhes-modelo').innerText = v.modelo;
             document.getElementById('detalhes-cliente').innerText = v.cliente;
+            
+            const dataEntradaFormatada = v.data_entrada ? new Date(v.data_entrada).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '---';
+            document.getElementById('detalhes-data-entrada').innerText = dataEntradaFormatada;
 
-            const dtEntrada = v.data_entrada ? new Date(v.data_entrada).toLocaleDateString('pt-BR') : 'N/I';
-            document.getElementById('detalhes-data-entrada').innerText = dtEntrada;
+            const badgeStatus = document.getElementById('detalhes-status-badge');
+            const containerSaida = document.getElementById('detalhes-container-saida');
+            const blocoServico = document.getElementById('detalhes-bloco-servico');
+            const rodapeDetalhes = document.getElementById('detalhes-rodape');
+
+            if (v.status === 'PATIO') {
+                badgeStatus.className = "text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider border bg-red-950 text-red-400 border-red-800/60";
+                badgeStatus.innerText = "NO PÁTIO";
+                containerSaida.classList.add('hidden');
+                blocoServico.classList.add('hidden');
+                
+                rodapeDetalhes.innerHTML = `
+                    <button onclick="fecharModalDetalhes(); abrirModalEditarPeloId('${v.id}')" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl uppercase text-xs">Editar</button>
+                    <button onclick="fecharModalDetalhes(); abrirModalSaidaPeloId('${v.id}', '${v.placa}')" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl uppercase text-xs">Registrar Saída</button>
+                `;
+            } else {
+                badgeStatus.className = "text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider border bg-emerald-950 text-emerald-400 border-emerald-800/60";
+                badgeStatus.innerText = "LIBERADO / HISTÓRICO";
+                containerSaida.classList.remove('hidden');
+                
+                const dataSaidaFormatada = v.data_saida ? new Date(v.data_saida).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '---';
+                document.getElementById('detalhes-data-saida').innerText = dataSaidaFormatada;
+
+                if (v.servico_realizado) {
+                    blocoServico.classList.remove('hidden');
+                    document.getElementById('detalhes-servico').innerText = v.servico_realizado;
+                } else {
+                    blocoServico.classList.add('hidden');
+                }
+
+                rodapeDetalhes.innerHTML = `
+                    <button onclick="fecharModalDetalhes()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl uppercase text-xs">Fechar</button>
+                `;
+            }
 
             const imgEl = document.getElementById('detalhes-foto');
             const semFotoEl = document.getElementById('detalhes-sem-foto');
 
-            if (v.foto_url && v.foto_url.trim() !== '') {
+            if (v.foto_url) {
                 imgEl.src = v.foto_url;
                 imgEl.classList.remove('hidden');
                 semFotoEl.classList.add('hidden');
             } else {
                 imgEl.classList.add('hidden');
                 semFotoEl.classList.remove('hidden');
-            }
-
-            const badge = document.getElementById('detalhes-status-badge');
-            const blocoServico = document.getElementById('detalhes-bloco-servico');
-            const containerSaida = document.getElementById('detalhes-container-saida');
-            const rodape = document.getElementById('detalhes-rodape');
-
-            if (origem === 'PATIO') {
-                badge.innerText = 'NO PÁTIO';
-                badge.className = "text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-red-950 text-red-400 border border-red-800";
-                blocoServico.classList.add('hidden');
-                containerSaida.classList.add('hidden');
-
-                rodape.innerHTML = `
-                    <button onclick="fecharModalDetalhes(); abrirModalEditar(${index})" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 rounded-xl uppercase text-xs">Editar</button>
-                    <button onclick="fecharModalDetalhes(); abrirModalSaida(${index})" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl uppercase text-xs">Dar Saída</button>
-                `;
-            } else {
-                badge.innerText = 'LIBERADO';
-                badge.className = "text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-emerald-950 text-emerald-400 border border-emerald-800";
-                
-                blocoServico.classList.remove('hidden');
-                document.getElementById('detalhes-servico').innerText = v.servico_realizado || 'Nenhum relatório cadastrado.';
-                
-                containerSaida.classList.remove('hidden');
-                const dtSaida = v.data_saida ? new Date(v.data_saida).toLocaleDateString('pt-BR') : 'N/I';
-                document.getElementById('detalhes-data-saida').innerText = dtSaida;
-
-                rodape.innerHTML = `
-                    <button onclick="fecharModalDetalhes()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl uppercase text-xs">Fechar</button>
-                `;
             }
 
             document.getElementById('modal-detalhes').classList.remove('hidden');
@@ -598,7 +650,7 @@
             document.getElementById('modal-detalhes').classList.add('hidden');
         }
 
-        // AÇÕES DO MODAL EDIÇÃO
+        // EDIÇÃO
         function abrirModalEditar(index) {
             const v = listaPatioMemoria[index];
             if (!v) return;
@@ -607,12 +659,15 @@
             document.getElementById('edit-placa').value = v.placa;
             document.getElementById('edit-modelo').value = v.modelo;
             document.getElementById('edit-cliente').value = v.cliente;
-            document.getElementById('edit-foto-camera').value = '';
-            document.getElementById('edit-foto-galeria').value = '';
-            document.getElementById('edit-preview-foto-nome').innerText = 'Manter foto atual';
+            document.getElementById('edit-preview-foto-nome').innerText = "Manter foto atual";
             arquivoFotoEditar = null;
 
             document.getElementById('modal-editar').classList.remove('hidden');
+        }
+
+        function abrirModalEditarPeloId(id) {
+            const idx = listaPatioMemoria.findIndex(item => item.id === id);
+            if (idx !== -1) abrirModalEditar(idx);
         }
 
         function fecharModalEditar() {
@@ -627,14 +682,14 @@
             const btn = document.getElementById('btn-atualizar');
 
             if (!placa || !modelo || !cliente) {
-                alert('Preencha os campos!');
+                alert('Preencha os campos obrigatórios!');
                 return;
             }
 
             btn.disabled = true;
-            btn.innerText = 'Enviando...';
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Salvando...`;
 
-            const payload = { placa, modelo, cliente };
+            let dadosAtualizacao = { placa, modelo, cliente };
 
             if (arquivoFotoEditar) {
                 const fotoParaEnvio = await comprimirImagem(arquivoFotoEditar);
@@ -648,27 +703,21 @@
                         contentType: 'image/jpeg'
                     });
 
-                if (uploadError) {
-                    alert('Erro ao enviar foto: ' + uploadError.message);
-                    btn.disabled = false;
-                    btn.innerText = 'Salvar';
-                    return;
+                if (!uploadError) {
+                    const { data: publicData } = supabaseClient.storage
+                        .from('fotos-veiculos')
+                        .getPublicUrl(nomeArquivo);
+                    dadosAtualizacao.foto_url = publicData.publicUrl;
                 }
-
-                const { data: publicData } = supabaseClient.storage
-                    .from('fotos-veiculos')
-                    .getPublicUrl(nomeArquivo);
-
-                payload.foto_url = publicData.publicUrl;
             }
 
             const { error } = await supabaseClient
                 .from('patio_veiculos')
-                .update(payload)
+                .update(dadosAtualizacao)
                 .eq('id', id);
 
             btn.disabled = false;
-            btn.innerText = 'Salvar';
+            btn.innerHTML = `Salvar`;
 
             if (error) {
                 alert('Erro ao atualizar: ' + error.message);
@@ -678,13 +727,21 @@
             }
         }
 
-        // AÇÕES DO MODAL SAÍDA
+        // SAÍDA
         function abrirModalSaida(index) {
             const v = listaPatioMemoria[index];
             if (!v) return;
 
             document.getElementById('saida-id').value = v.id;
-            document.getElementById('saida-placa-label').innerText = `${v.placa} - ${v.modelo}`;
+            document.getElementById('saida-placa-label').innerText = `LIBERAR PLACA: ${v.placa}`;
+            document.getElementById('saida-servico').value = '';
+
+            document.getElementById('modal-saida').classList.remove('hidden');
+        }
+
+        function abrirModalSaidaPeloId(id, placa) {
+            document.getElementById('saida-id').value = id;
+            document.getElementById('saida-placa-label').innerText = `LIBERAR PLACA: ${placa}`;
             document.getElementById('saida-servico').value = '';
             document.getElementById('modal-saida').classList.remove('hidden');
         }
@@ -695,19 +752,14 @@
 
         async function confirmarSaida() {
             const id = document.getElementById('saida-id').value;
-            const servico = document.getElementById('saida-servico').value.toUpperCase().trim();
-
-            if (!servico) {
-                alert('Informe o serviço realizado antes de liberar!');
-                return;
-            }
+            const servico = document.getElementById('saida-servico').value.trim();
 
             const { error } = await supabaseClient
                 .from('patio_veiculos')
-                .update({ 
-                    status: 'SAIU', 
+                .update({
+                    status: 'SAIU',
                     data_saida: new Date().toISOString(),
-                    servico_realizado: servico 
+                    servico_realizado: servico
                 })
                 .eq('id', id);
 
@@ -719,40 +771,36 @@
             }
         }
 
-        // EXCLUIR ITEM DO HISTÓRICO
         async function excluirHistorico(id) {
-            if (confirm("Deseja remover este registro do histórico permanentemente?")) {
-                const { error } = await supabaseClient
-                    .from('patio_veiculos')
-                    .delete()
-                    .eq('id', id);
+            if (!confirm('Deseja realmente excluir este registro do histórico?')) return;
 
-                if (error) alert('Erro ao excluir: ' + error.message);
-                else carregarHistorico();
+            const { error } = await supabaseClient
+                .from('patio_veiculos')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                alert('Erro ao excluir: ' + error.message);
+            } else {
+                carregarHistorico();
             }
         }
 
-        // LIMPAR CACHE LOCAL
-        async function forcarAtualizacao() {
-            if (confirm("Deseja forçar a atualização e limpar o cache do celular?")) {
-                if ('serviceWorker' in navigator) {
-                    const regs = await navigator.serviceWorker.getRegistrations();
-                    for (let r of regs) await r.unregister();
-                }
-                if ('caches' in window) {
-                    const keys = await caches.keys();
-                    for (let k of keys) await caches.delete(k);
-                }
-                window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
+        function forcarAtualizacao() {
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => caches.delete(name));
+                });
             }
+            localStorage.clear();
+            alert('Cache limpo com sucesso! O aplicativo será recarregado.');
+            window.location.reload(true);
         }
 
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(() => {});
-        }
-
-        // INICIALIZAÇÃO AUTOMÁTICA
-        carregarPatio();
+        // Inicialização padrão ao carregar a página
+        window.onload = () => {
+            carregarPatio();
+        };
     </script>
 </body>
 </html>
